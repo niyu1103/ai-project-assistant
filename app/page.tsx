@@ -6,6 +6,7 @@ export default function Home() {
   const [message, setMessage] = useState('')
   const [answer, setAnswer] = useState('')
   const [loading, setLoading] = useState(false)
+  const [toolCalls, setToolCalls] = useState<string[]>([])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -14,6 +15,7 @@ export default function Home() {
 
     setLoading(true)
     setAnswer('')
+    setToolCalls([])
 
     try {
       const response = await fetch('/api/agent', {
@@ -33,6 +35,7 @@ export default function Home() {
       const data = await response.json()
 
       setAnswer(data.message)
+      setToolCalls(data.toolCalls)
     } catch (error) {
       console.error(error)
       setAnswer('エラーが発生しました。')
@@ -61,6 +64,20 @@ export default function Home() {
           {loading ? '考え中...' : '送信'}
         </button>
       </form>
+
+      {toolCalls.length > 0 && (
+        <section className='mt-8'>
+          <h2 className='mb-2 font-bold'>Agent activity</h2>
+
+          <ul className='space-y-2'>
+            {toolCalls.map((toolName, index) => (
+              <li key={`${toolName}-${index}`} className='rounded border p-3'>
+                ✓ {toolName}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {answer && (
         <section className='mt-8'>
