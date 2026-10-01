@@ -1,0 +1,58 @@
+[
+  {
+    "id": "proj-001",
+    "customerId": "cust-001",
+    "name": "顧客ポータル刷新",
+    "status": "in_progress",
+    "owner": "山本 遼",
+    "startDate": "2026-07-01",
+    "endDate": "2026-11-15",
+    "budget": 12000000,
+    "progress": 72,
+    "priority": "high",
+    "nextMilestone": "受入テスト開始",
+    "nextMilestoneDate": "2026-10-12"
+  },
+  {
+    "id": "proj-002",
+    "customerId": "cust-002",
+    "name": "店舗分析ダッシュボード導入",
+    "status": "in_progress",
+    "owner": "中村 葵",
+    "startDate": "2026-08-15",
+    "endDate": "2026-12-20",
+    "budget": 6800000,
+    "progress": 48,
+    "priority": "medium",
+    "nextMilestone": "β版レビュー",
+    "nextMilestoneDate": "2026-10-20"
+  },
+  {
+    "id": "proj-003",
+    "customerId": "cust-003",
+    "name": "配送最適化基盤",
+    "status": "at_risk",
+    "owner": "小林 直樹",
+    "startDate": "2026-05-10",
+    "endDate": "2026-10-31",
+    "budget": 18000000,
+    "progress": 81,
+    "priority": "critical",
+    "nextMilestone": "本番負荷試験",
+    "nextMilestoneDate": "2026-10-08"
+  },
+  {
+    "id": "proj-004",
+    "customerId": "cust-004",
+    "name": "コンテンツ検索PoC",
+    "status": "planning",
+    "owner": "石井 凛",
+    "startDate": "2026-10-15",
+    "endDate": "2026-11-30",
+    "budget": 1800000,
+    "progress": 10,
+    "priority": "low",
+    "nextMilestone": "要件確定",
+    "nextMilestoneDate": "2026-10-18"
+  }
+]

@@ -1,0 +1,100 @@
+[
+  {
+    "file": "documents/aosora_contract.md",
+    "documentType": "contract",
+    "customerId": "cust-001",
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/hokuto_contract.md",
+    "documentType": "contract",
+    "customerId": "cust-002",
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/mirai_contract.md",
+    "documentType": "contract",
+    "customerId": "cust-003",
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/aosora_meeting_2026-09-18.md",
+    "documentType": "meeting",
+    "customerId": "cust-001",
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/hokuto_meeting_2026-09-25.md",
+    "documentType": "meeting",
+    "customerId": "cust-002",
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/mirai_meeting_2026-09-16.md",
+    "documentType": "meeting",
+    "customerId": "cust-003",
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/aosora_project_notes.md",
+    "documentType": "project",
+    "customerId": "cust-001",
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/mirai_project_risk.md",
+    "documentType": "project",
+    "customerId": "cust-003",
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/company_security_policy.md",
+    "documentType": "policy",
+    "customerId": null,
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/support_policy.md",
+    "documentType": "policy",
+    "customerId": null,
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/task_operation_policy.md",
+    "documentType": "policy",
+    "customerId": null,
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/project_management_guide.md",
+    "documentType": "policy",
+    "customerId": null,
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/ai_usage_guidelines.md",
+    "documentType": "policy",
+    "customerId": null,
+    "language": "ja",
+    "confidentiality": "internal"
+  },
+  {
+    "file": "documents/sales_faq.md",
+    "documentType": "faq",
+    "customerId": null,
+    "language": "ja",
+    "confidentiality": "internal"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "task-001",
+    "customerId": "cust-001",
+    "projectId": "proj-001",
+    "title": "受入テスト計画の顧客確認",
+    "status": "open",
+    "priority": "high",
+    "assignee": "田中 美咲",
+    "dueDate": "2026-10-07"
+  },
+  {
+    "id": "task-002",
+    "customerId": "cust-003",
+    "projectId": "proj-003",
+    "title": "P1障害再発防止策のレビュー",
+    "status": "open",
+    "priority": "critical",
+    "assignee": "小林 直樹",
+    "dueDate": "2026-10-04"
+  },
+  {
+    "id": "task-003",
+    "customerId": "cust-002",
+    "projectId": "proj-002",
+    "title": "β版レビュー会のアジェンダ作成",
+    "status": "in_progress",
+    "priority": "medium",
+    "assignee": "中村 葵",
+    "dueDate": "2026-10-14"
+  }
+]

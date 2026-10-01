@@ -1,0 +1,18 @@
+[
+  {
+    "id": "contact-001",
+    "customerId": "cust-001",
+    "name": "佐々木 慎吾",
+    "role": "情報システム部 部長",
+    "email": "shingo.sasaki@example.invalid",
+    "preferredChannel": "email"
+  },
+  {
+    "id": "contact-002",
+    "customerId": "cust-003",
+    "name": "森川 奈々",
+    "role": "DX推進室 室長",
+    "email": "nana.morikawa@example.invalid",
+    "preferredChannel": "email"
+  }
+]
