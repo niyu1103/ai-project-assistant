@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #ffffff;
@@ -23,4 +23,86 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.answer {
+  line-height: 1.8;
+}
+
+.answer h1,
+.answer h2,
+.answer h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.answer p {
+  margin: 0.75rem 0;
+}
+
+.answer ul,
+.answer ol {
+  padding-left: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+.answer li {
+  margin: 0.25rem 0;
+}
+
+.answer code {
+  font-family: monospace;
+  background: #f3f4f6;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+
+.source-file {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.2rem 0.4rem;
+}
+
+.answer h3 {
+  margin-top: 2rem;
+  font-size: 1rem;
+}
+
+.answer code {
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+}
+
+.sources {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.sources h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.sources ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.sources li {
+  width: fit-content;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+  font-family: monospace;
+  font-size: 0.85rem;
 }

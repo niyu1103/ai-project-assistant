@@ -1,12 +1,14 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 export default function Home() {
   const [message, setMessage] = useState('')
   const [answer, setAnswer] = useState('')
   const [loading, setLoading] = useState(false)
   const [toolCalls, setToolCalls] = useState<string[]>([])
+  const [sources, setSources] = useState<string[]>([])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -16,6 +18,7 @@ export default function Home() {
     setLoading(true)
     setAnswer('')
     setToolCalls([])
+    setSources([])
 
     try {
       const response = await fetch('/api/agent', {
@@ -35,7 +38,8 @@ export default function Home() {
       const data = await response.json()
 
       setAnswer(data.message)
-      setToolCalls(data.toolCalls)
+      setSources(data.sources ?? [])
+      setToolCalls(data.toolCalls ?? [])
     } catch (error) {
       console.error(error)
       setAnswer('エラーが発生しました。')
@@ -83,7 +87,29 @@ export default function Home() {
         <section className='mt-8'>
           <h2 className='mb-2 font-bold'>回答</h2>
 
-          <div className='whitespace-pre-wrap rounded border p-4'>{answer}</div>
+          <div className='answer'>
+            <ReactMarkdown
+              components={{
+                code({ children }) {
+                  return <code className='source-file'>{children}</code>
+                },
+              }}
+            >
+              {answer}
+            </ReactMarkdown>
+          </div>
+
+          {sources.length > 0 && (
+            <div className='sources'>
+              <h3>参照文書</h3>
+
+              <ul>
+                {sources.map((source) => (
+                  <li key={source}>{source}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       )}
     </main>

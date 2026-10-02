@@ -13,7 +13,8 @@ export async function POST(request: Request) {
     })
 
   return Response.json({
-    message: result.finalOutput,
+    message: result.finalOutput?.message ?? '',
+    sources: result.finalOutput?.sources ?? [],
     toolCalls,
   })
 }

@@ -42,3 +42,4 @@ next-env.d.ts
 
 # data
 data/vector-index.json
+data/rag-documents.json

@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "rag:index": "tsx --env-file=.env.local scripts/build-vector-index.ts"
+    "rag:index": "tsx --env-file=.env.local scripts/build-vector-index.ts",
+    "rag:documents": "tsx scripts/build-rag-documents.ts",
+    "rag:evaluate": "tsx --env-file=.env.local scripts/evaluate-rag.ts"
   },
   "dependencies": {
     "@openai/agents": "^0.18.0",
@@ -15,6 +17,7 @@
     "openai": "^7.25.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-markdown": "^10.1.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
