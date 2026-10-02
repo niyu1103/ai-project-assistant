@@ -1,0 +1,68 @@
+[
+  {
+    "id": "cust-001",
+    "name": "青空テクノロジーズ株式会社",
+    "shortName": "青空テック",
+    "industry": "SaaS",
+    "plan": "Enterprise",
+    "status": "active",
+    "accountManager": "田中 美咲",
+    "renewalDate": "2026-11-30",
+    "annualContractValue": 7200000,
+    "riskLevel": "medium",
+    "tags": [
+      "重要顧客",
+      "更新予定",
+      "API連携"
+    ]
+  },
+  {
+    "id": "cust-002",
+    "name": "北斗リテール株式会社",
+    "shortName": "北斗リテール",
+    "industry": "小売",
+    "plan": "Business",
+    "status": "active",
+    "accountManager": "佐藤 健",
+    "renewalDate": "2027-02-28",
+    "annualContractValue": 3600000,
+    "riskLevel": "low",
+    "tags": [
+      "POS連携",
+      "安定運用"
+    ]
+  },
+  {
+    "id": "cust-003",
+    "name": "みらい物流株式会社",
+    "shortName": "みらい物流",
+    "industry": "物流",
+    "plan": "Enterprise",
+    "status": "active",
+    "accountManager": "鈴木 彩",
+    "renewalDate": "2026-12-31",
+    "annualContractValue": 9600000,
+    "riskLevel": "high",
+    "tags": [
+      "大規模導入",
+      "障害注意",
+      "SLA重要"
+    ]
+  },
+  {
+    "id": "cust-004",
+    "name": "若葉メディア株式会社",
+    "shortName": "若葉メディア",
+    "industry": "メディア",
+    "plan": "Business",
+    "status": "trial",
+    "accountManager": "高橋 翔",
+    "renewalDate": null,
+    "annualContractValue": 0,
+    "riskLevel": "low",
+    "tags": [
+      "トライアル",
+      "提案中"
+    ]
+  }
+]

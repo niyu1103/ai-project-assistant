@@ -1,0 +1,34 @@
+[
+  {
+    "id": "case-001",
+    "query": "青空テックのSSO証明書の運用について",
+    "customerName": "青空テック",
+    "expectedFiles": ["aosora_meeting_2026-09-18.md", "aosora_project_notes.md"]
+  },
+  {
+    "id": "case-002",
+    "query": "青空テックの契約更新時に確認すべきこと",
+    "customerName": "青空テック",
+    "expectedFiles": ["aosora_contract.md", "aosora_meeting_2026-09-18.md"]
+  },
+  {
+    "id": "case-003",
+    "query": "みらい物流の重大障害と再発防止について",
+    "customerName": "みらい物流",
+    "expectedFiles": [
+      "mirai_meeting_2026-09-16.md",
+      "mirai_project_risk.md",
+      "mirai_contract.md"
+    ]
+  },
+  {
+    "id": "case-004",
+    "query": "契約更新前に確認すべき一般的な項目",
+    "expectedFiles": ["sales_faq.md"]
+  },
+  {
+    "id": "case-005",
+    "query": "P1障害時の一次報告について",
+    "expectedFiles": ["support_policy.md", "mirai_contract.md"]
+  }
+]

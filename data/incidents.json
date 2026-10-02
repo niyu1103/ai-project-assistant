@@ -1,0 +1,38 @@
+[
+  {
+    "id": "inc-001",
+    "customerId": "cust-001",
+    "projectId": "proj-001",
+    "occurredAt": "2026-08-22T14:10:00+09:00",
+    "severity": "P2",
+    "title": "SSOログイン断続障害",
+    "status": "resolved",
+    "rootCause": "認証プロバイダの証明書更新に伴う設定不整合",
+    "impact": "約43分、一部ユーザーがログインしづらい状態",
+    "followUp": "証明書期限監視と事前検証手順を追加"
+  },
+  {
+    "id": "inc-002",
+    "customerId": "cust-003",
+    "projectId": "proj-003",
+    "occurredAt": "2026-09-14T02:35:00+09:00",
+    "severity": "P1",
+    "title": "配送APIタイムアウト増加",
+    "status": "resolved",
+    "rootCause": "バッチ処理集中によるDB接続プール枯渇",
+    "impact": "最大18分、配送計画APIの約11%がタイムアウト",
+    "followUp": "接続プール拡張、バッチ時刻分散、負荷試験ケース追加"
+  },
+  {
+    "id": "inc-003",
+    "customerId": "cust-003",
+    "projectId": "proj-003",
+    "occurredAt": "2026-09-27T11:20:00+09:00",
+    "severity": "P2",
+    "title": "一部配送拠点でCSV取込失敗",
+    "status": "monitoring",
+    "rootCause": "拠点ごとの文字コード差異",
+    "impact": "7拠点で一時的に手動取込へ切替",
+    "followUp": "文字コード自動判定を10月アップデートに含める"
+  }
+]
