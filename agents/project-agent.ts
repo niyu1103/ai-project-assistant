@@ -4,6 +4,7 @@ import { getCustomerTool } from '@/tools/get-customer'
 import { getProjectTool } from '@/tools/get-project'
 import { getContractTool } from '@/tools/get-contract'
 import { getIncidentsTool } from '@/tools/get-incidents'
+import { searchDocumentsTool } from '@/tools/search-documents'
 
 export const projectAgent = new Agent({
   name: 'Project Assistant',
@@ -24,7 +25,16 @@ export const projectAgent = new Agent({
 
     ユーザーの質問には日本語で、
     簡潔かつ分かりやすく回答してください。
+
+    社内文書、契約書、議事録、ルールなどの内容を確認する必要がある場合は、
+    search_documents を使用してください。
   `,
 
-  tools: [getCustomerTool, getProjectTool, getContractTool, getIncidentsTool],
+  tools: [
+    getCustomerTool,
+    getProjectTool,
+    getContractTool,
+    getIncidentsTool,
+    searchDocumentsTool,
+  ],
 })
