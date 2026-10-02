@@ -42,10 +42,10 @@ export const searchDocumentsTool = tool({
           chunk.toLowerCase().includes(keyword),
         )
 
-        console.log('[search_documents_matchedKeywords]', {
-          query,
-          matchedKeywords,
-        })
+        // console.log('[search_documents_matchedKeywords]', {
+        //   query,
+        //   matchedKeywords,
+        // })
         const score = matchedKeywords.length
         if (matchedKeywords.length > 0) {
           results.push({
@@ -58,10 +58,10 @@ export const searchDocumentsTool = tool({
         }
       })
     }
-    console.log('[search_documents_results]', {
-      query,
-      results: results.sort((a, b) => b.score - a.score).slice(0, 5),
-    })
+    // console.log('[search_documents_results]', {
+    //   query,
+    //   results: results.sort((a, b) => b.score - a.score).slice(0, 5),
+    // })
     return {
       query,
       results: results.sort((a, b) => b.score - a.score).slice(0, 5),

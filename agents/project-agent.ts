@@ -5,6 +5,7 @@ import { getProjectTool } from '@/tools/get-project'
 import { getContractTool } from '@/tools/get-contract'
 import { getIncidentsTool } from '@/tools/get-incidents'
 import { searchDocumentsTool } from '@/tools/search-documents'
+import { searchDocumentsSemanticTool } from '@/tools/search-documents-semantic'
 
 export const projectAgent = new Agent({
   name: 'Project Assistant',
@@ -28,6 +29,16 @@ export const projectAgent = new Agent({
 
     社内文書、契約書、議事録、ルールなどの内容を確認する必要がある場合は、
     search_documents を使用してください。
+
+    社内文書に関する質問では
+    search_documents_semantic を使用してください。
+
+    顧客名が含まれる社内文書検索では、
+    必要に応じて get_customer を使って customerId を取得し、
+    search_documents_semantic の customerId に指定してください。
+
+    特定顧客の質問では、
+    他の顧客の文書を混在させないでください。
   `,
 
   tools: [
@@ -36,5 +47,6 @@ export const projectAgent = new Agent({
     getContractTool,
     getIncidentsTool,
     searchDocumentsTool,
+    searchDocumentsSemanticTool,
   ],
 })
