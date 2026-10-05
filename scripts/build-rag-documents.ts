@@ -22,6 +22,9 @@ type RagDocument = {
   confidentiality?: string
 }
 
+const CHUNK_SIZE = 1000
+const CHUNK_OVERLAP = 200
+
 async function main() {
   const documentsDir = path.join(process.cwd(), 'data', 'documents')
 
@@ -57,8 +60,9 @@ async function main() {
 
     const content = await fs.readFile(path.join(documentsDir, file), 'utf-8')
 
-    const chunks = chunkText(content)
-
+    // const chunks = chunkText(content)
+    const chunks = chunkText(content, CHUNK_SIZE, CHUNK_OVERLAP)
+    console.log(`[chunks] ${file}: ${chunks.length}`)
     for (const [chunkIndex, chunk] of chunks.entries()) {
       const fileNameWithoutExtension = path.parse(file).name
 
@@ -77,8 +81,8 @@ async function main() {
 
   await fs.writeFile(outputPath, JSON.stringify(ragDocuments, null, 2), 'utf-8')
 
-  console.log('')
-  console.log(`RAG documents created: ${outputPath}`)
+  console.log(`Chunk size: ${CHUNK_SIZE}`)
+  console.log(`Chunk overlap: ${CHUNK_OVERLAP}`)
   console.log(`Chunks: ${ragDocuments.length}`)
 }
 

@@ -9,6 +9,7 @@ type EvaluationCase = {
   query: string
   customerName?: string
   expectedFiles: string[]
+  documentType?: string
 }
 
 async function main() {
@@ -24,6 +25,8 @@ async function main() {
 
   const results = []
 
+  const TOP_K = 3
+
   for (const testCase of cases) {
     let customerId: string | undefined
 
@@ -37,11 +40,16 @@ async function main() {
       customerId = customer?.id
     }
 
-    const searchResults = await searchDatabricksDocuments(testCase.query, 5, {
-      customerId,
-    })
+    const searchResults = await searchDatabricksDocuments(
+      testCase.query,
+      TOP_K,
+      {
+        customerId,
+        documentType: testCase.documentType,
+      },
+    )
 
-    const actualFiles = searchResults.map((result) => result.file)
+    const actualFiles = [...new Set(searchResults.map((result) => result.file))]
 
     const matchedFiles = testCase.expectedFiles.filter((file) =>
       actualFiles.includes(file),
@@ -73,9 +81,8 @@ async function main() {
 
   const averagePrecision =
     results.reduce((sum, result) => sum + result.precision, 0) / results.length
-
+  console.log(`Top-K: ${TOP_K}`)
   console.log(`Average recall: ${averageRecall.toFixed(2)}`)
-
   console.log(`Average precision: ${averagePrecision.toFixed(2)}`)
 }
 

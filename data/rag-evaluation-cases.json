@@ -3,7 +3,10 @@
     "id": "case-001",
     "query": "青空テックのSSO証明書の運用について",
     "customerName": "青空テック",
-    "expectedFiles": ["aosora_meeting_2026-09-18.md", "aosora_project_notes.md"]
+    "expectedFiles": [
+      "aosora_sso_operation_guide.md",
+      "aosora_meeting_2026-09-18.md"
+    ]
   },
   {
     "id": "case-002",
@@ -30,5 +33,41 @@
     "id": "case-005",
     "query": "P1障害時の一次報告について",
     "expectedFiles": ["support_policy.md", "mirai_contract.md"]
+  },
+  {
+    "id": "case-006",
+    "query": "青空テックの契約書だけ確認して",
+    "customerName": "青空テック",
+    "documentType": "contract",
+    "expectedFiles": ["aosora_contract.md"]
+  },
+  {
+    "id": "case-007",
+    "query": "青空テックの会議メモだけ確認して",
+    "customerName": "青空テック",
+    "documentType": "meeting",
+    "expectedFiles": ["aosora_meeting_2026-09-18.md"]
+  },
+  {
+    "id": "case-008",
+    "query": "青空テックのSSO証明書の期限管理について確認したい",
+    "customerName": "青空テック",
+    "expectedFiles": ["aosora_sso_operation_guide.md"]
+  },
+  {
+    "id": "case-009",
+    "query": "青空テックでSSOログイン障害が発生した場合の確認項目を調べて",
+    "customerName": "青空テック",
+    "expectedFiles": ["aosora_sso_operation_guide.md"]
+  },
+  {
+    "id": "case-010",
+    "query": "青空テックの契約更新前にSSO関連で確認すべき項目は何か",
+    "customerName": "青空テック",
+    "expectedFiles": [
+      "aosora_sso_operation_guide.md",
+      "aosora_contract.md",
+      "aosora_meeting_2026-09-18.md"
+    ]
   }
 ]
