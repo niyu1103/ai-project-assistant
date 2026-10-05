@@ -511,3 +511,16 @@ Improvement
 
 大きいChunkでは複数トピックが1Chunkに混在し、
 検索時の意味的な焦点がぼやけるケースが見られた。
+
+### Python Evaluation
+
+TypeScript版に加えて、
+同じEvaluation Dataset / Ground Truthを利用した
+Python版のRAG Evaluationも実装。
+
+- Databricks AI Search API
+- pandas
+- Recall
+- Precision
+
+TypeScript版と同じ評価結果になることを確認。
