@@ -4,6 +4,8 @@ import { z } from 'zod'
 import customers from '@/data/customers.json'
 import incidents from '@/data/incidents.json'
 
+import { addEvalContext } from '@/lib/eval-context'
+
 export const getIncidentsTool = tool({
   name: 'get_incidents',
 
@@ -34,7 +36,7 @@ export const getIncidentsTool = tool({
       (incident) => incident.customerId === customer.id,
     )
 
-    return {
+    const output = {
       found: customerIncidents.length > 0,
       customer: {
         id: customer.id,
@@ -42,5 +44,9 @@ export const getIncidentsTool = tool({
       },
       incidents: customerIncidents,
     }
+
+    addEvalContext('get_incidents', output)
+
+    return output
   },
 })

@@ -69,5 +69,60 @@
       "aosora_contract.md",
       "aosora_meeting_2026-09-18.md"
     ]
+  },
+  {
+    "id": "case-011",
+    "query": "青空テックのSSO証明書の有効期限が90日以内の場合、何をするべき？",
+    "customerName": "青空テック",
+    "documentType": "operation_guide",
+    "expectedFiles": ["aosora_sso_operation_guide.md"],
+    "expectedFacts": ["証明書の更新予定を確認する", "担当者へ連絡する"],
+    "expectedTools": ["search_documents_semantic"],
+    "expectedDocumentTypes": ["operation_guide"]
+  },
+  {
+    "id": "case-012",
+    "query": "みらい物流でP1障害が発生した場合、一次報告はいつまでに何を報告する必要がある？",
+    "customerName": "みらい物流",
+    "expectedFiles": ["mirai_contract.md", "support_policy.md"],
+    "expectedFacts": [
+      "P1障害発生時は30分以内に一次報告を行う",
+      "一次報告では影響範囲を共有する",
+      "一次報告では暫定原因を共有する",
+      "一次報告では次回報告予定を共有する"
+    ],
+    "expectedTools": ["get_contract", "search_documents_semantic"],
+    "expectedDocumentTypes": ["contract", "policy"]
+  },
+  {
+    "id": "case-013",
+    "query": "北斗リテールのサポート対応時間を確認して",
+    "customerName": "北斗リテール",
+    "documentType": "contract",
+    "expectedFiles": ["hokuto_contract.md"],
+    "expectedFacts": ["サポート対応時間は平日9:00から18:00まで"]
+  },
+  {
+    "id": "case-014",
+    "query": "AIがタスクを作成する場合、人間の承認は必要？また登録時の必須項目は？",
+    "documentType": "policy",
+    "expectedFiles": ["task_operation_policy.md"],
+    "expectedFacts": [
+      "実際のタスク登録・更新・削除にはユーザー承認が必要",
+      "タスク名が必須",
+      "担当者が必須",
+      "期限が必須",
+      "顧客またはプロジェクトIDが必須"
+    ]
+  },
+  {
+    "id": "case-015",
+    "query": "社内AIを利用するとき、顧客の個人情報や認証情報は外部AIサービスへ送ってよい？",
+    "documentType": "policy",
+    "expectedFiles": ["company_security_policy.md"],
+    "expectedFacts": [
+      "顧客の個人情報を外部AIサービスへ送信してはならない",
+      "認証情報を外部AIサービスへ送信してはならない"
+    ]
   }
 ]

@@ -10,6 +10,7 @@ type EvaluationCase = {
   customerName?: string
   expectedFiles: string[]
   documentType?: string
+  expectedFacts?: string[]
 }
 
 async function main() {
