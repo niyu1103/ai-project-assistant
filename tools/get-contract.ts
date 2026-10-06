@@ -4,6 +4,8 @@ import { z } from 'zod'
 import customers from '@/data/customers.json'
 import contracts from '@/data/contracts.json'
 
+import { addEvalContext } from '@/lib/eval-context'
+
 export const getContractTool = tool({
   name: 'get_contract',
 
@@ -41,7 +43,7 @@ export const getContractTool = tool({
       }
     }
 
-    return {
+    const output = {
       found: true,
       customer: {
         id: customer.id,
@@ -49,5 +51,11 @@ export const getContractTool = tool({
       },
       contract,
     }
+
+    addEvalContext('get_contract', output, {
+      customerName,
+    })
+
+    return output
   },
 })

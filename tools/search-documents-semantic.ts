@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import customers from '@/data/customers.json'
 import { searchDatabricksDocuments } from '@/lib/databricks'
+import { addEvalContext } from '@/lib/eval-context'
 
 export const searchDocumentsSemanticTool = tool({
   name: 'search_documents_semantic',
@@ -58,8 +59,17 @@ export const searchDocumentsSemanticTool = tool({
       })),
     )
 
-    return {
+    const output = {
       results,
     }
+
+    addEvalContext('search_documents_semantic', output, {
+      query,
+      customerName,
+      customerId,
+      documentType,
+    })
+
+    return output
   },
 })

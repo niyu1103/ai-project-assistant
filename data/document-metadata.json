@@ -96,5 +96,12 @@
     "customerId": null,
     "language": "ja",
     "confidentiality": "internal"
+  },
+  {
+    "file": "documents/aosora_sso_operation_guide.md",
+    "documentType": "operation_guide",
+    "customerId": "cust-001",
+    "language": "ja",
+    "confidentiality": "internal"
   }
 ]
