@@ -49,6 +49,82 @@ type EvaluationResult = {
 
   answer: string
   judgeDetails: string
+
+  diagnosis: ImprovementDiagnosis
+}
+
+type ImprovementIssue =
+  | 'answer_incomplete'
+  | 'ungrounded_answer'
+  | 'tool_selection'
+  | 'document_type_filter'
+  | 'retrieval_failure'
+
+type ImprovementDiagnosis = {
+  issues: ImprovementIssue[]
+  suggestions: string[]
+}
+
+function diagnoseResult(result: {
+  semanticFactRecall: number
+  groundednessScore: number
+  toolRecall: number | null
+  documentTypeFilterRecall: number | null
+  retrievedDocumentTypeRecall: number | null
+}): ImprovementDiagnosis {
+  const issues: ImprovementIssue[] = []
+  const suggestions: string[] = []
+
+  if (result.semanticFactRecall < 1) {
+    issues.push('answer_incomplete')
+
+    suggestions.push(
+      '回答に必要な事実が不足しているため、質問の各論点を回答前に確認する。',
+    )
+  }
+
+  if (result.groundednessScore < 1) {
+    issues.push('ungrounded_answer')
+
+    suggestions.push(
+      '取得したContextにない情報を回答へ追加しない。必要なら追加検索する。',
+    )
+  }
+
+  if (result.toolRecall !== null && result.toolRecall < 1) {
+    issues.push('tool_selection')
+
+    suggestions.push(
+      '必要なToolをすべて使用できるようAgent instructionsを見直す。',
+    )
+  }
+
+  if (
+    result.documentTypeFilterRecall !== null &&
+    result.documentTypeFilterRecall < 1
+  ) {
+    issues.push('document_type_filter')
+
+    suggestions.push(
+      '質問内容から適切なdocumentTypeを判断できるよう検索戦略を改善する。',
+    )
+  }
+
+  if (
+    result.retrievedDocumentTypeRecall !== null &&
+    result.retrievedDocumentTypeRecall < 1
+  ) {
+    issues.push('retrieval_failure')
+
+    suggestions.push(
+      '必要な文書種別を取得できていないため、Filter・検索Query・再検索条件を見直す。',
+    )
+  }
+
+  return {
+    issues,
+    suggestions,
+  }
 }
 
 async function main() {
@@ -220,6 +296,14 @@ ${JSON.stringify(item.content, null, 2)}
     // 8. Result保存
     // --------------------------------
 
+    const diagnosis = diagnoseResult({
+      semanticFactRecall,
+      groundednessScore: groundedness.score,
+      toolRecall,
+      documentTypeFilterRecall,
+      retrievedDocumentTypeRecall,
+    })
+
     results.push({
       id: testCase.id,
       query: testCase.query,
@@ -250,7 +334,33 @@ ${JSON.stringify(item.content, null, 2)}
             `${result.matched ? '✅' : '❌'} ${result.fact}: ${result.reason}`,
         )
         .join('\n'),
+      diagnosis,
     })
+  }
+  console.log('\nImprovement Candidates')
+
+  for (const result of results) {
+    if (result.diagnosis.issues.length === 0) {
+      continue
+    }
+
+    console.log('')
+    console.log(`=== ${result.id} ===`)
+    console.log(result.query)
+
+    console.log('')
+    console.log('Issues:')
+
+    for (const issue of result.diagnosis.issues ?? []) {
+      console.log(`- ${issue}`)
+    }
+
+    console.log('')
+    console.log('Suggestions:')
+
+    for (const suggestion of result.diagnosis.suggestions ?? []) {
+      console.log(`- ${suggestion}`)
+    }
   }
 
   // --------------------------------
@@ -324,6 +434,36 @@ ${JSON.stringify(item.content, null, 2)}
           : result.retrievedDocumentTypeRecall.toFixed(2),
     })),
   )
+
+  const evalResultsDir = path.join(process.cwd(), 'data', 'eval-results')
+
+  const resultName = process.argv[2] ?? 'latest'
+
+  await fs.mkdir(evalResultsDir, {
+    recursive: true,
+  })
+
+  const resultPath = path.join(evalResultsDir, `${resultName}.json`)
+  await fs.writeFile(
+    resultPath,
+    JSON.stringify(
+      {
+        generatedAt: new Date().toISOString(),
+        averages: {
+          stringFactRecall: averageStringFactRecall,
+          semanticFactRecall: averageSemanticFactRecall,
+          groundedness: averageGroundedness,
+          toolRecall: averageToolRecall,
+        },
+        results,
+      },
+      null,
+      2,
+    ),
+    'utf-8',
+  )
+
+  console.log(`Saved evaluation result: ${resultPath}`)
 
   // --------------------------------
   // Groundedness Issues

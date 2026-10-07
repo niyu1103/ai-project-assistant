@@ -1,0 +1,106 @@
+{
+  "generatedAt": "2026-10-07T01:23:11.992Z",
+  "averages": {
+    "stringFactRecall": 0.1,
+    "semanticFactRecall": 1,
+    "groundedness": 1,
+    "toolRecall": 1
+  },
+  "results": [
+    {
+      "id": "case-011",
+      "query": "青空テックのSSO証明書の有効期限が90日以内の場合、何をするべき？",
+      "stringMatched": "1/2",
+      "stringFactRecall": 0.5,
+      "semanticMatched": "2/2",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "主要な主張はすべてProvided Contextに明確な根拠があります。90日以内の更新予定確認と担当者への連絡、30日以内の優先度引き上げと発行状況・切り替え予定日の確認、検証環境での確認、本番登録、動作確認後の旧証明書無効化、切り替え後のエラー監視と切り戻し可能状態の維持は運用ガイドに記載されています。また、契約が自動更新であることも契約情報のautoRenewal: trueで裏付けられています。",
+      "toolRecall": 1,
+      "documentTypeFilterRecall": 1,
+      "retrievedDocumentTypeRecall": 1,
+      "answer": "有効期限が90日以内になった場合は、以下を実施してください。\n\n- 更新予定を確認する\n- 担当者へ連絡する\n- 30日以内の場合は優先度を上げ、新証明書の発行状況と切り替え予定日を確認する\n- 更新時は、検証環境でログイン確認後、本番登録・動作確認を行い、問題がなければ旧証明書を無効化する\n- 切り替え後はログインエラーの増加を確認し、旧証明書へ戻せる状態を維持する\n\n青空テックの契約は自動更新ですが、証明書対応については上記運用ガイドに従ってください。",
+      "judgeDetails": "✅ 証明書の更新予定を確認する: Actual Answerに「更新予定を確認する」と明記されており、Expected Factの内容を満たしています。\n✅ 担当者へ連絡する: Actual Answerに「担当者へ連絡する」と明記されており、Expected Factの内容を満たしています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-012",
+      "query": "みらい物流でP1障害が発生した場合、一次報告はいつまでに何を報告する必要がある？",
+      "stringMatched": "0/4",
+      "stringFactRecall": 0,
+      "semanticMatched": "4/4",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "契約情報に「P1障害発生時は30分以内に一次報告」と明記され、共通のサポート運用ポリシーに一次報告の内容として「影響範囲・暫定原因・次回報告予定」が明記されています。回答の全主張がContextに裏付けられています。",
+      "toolRecall": 1,
+      "documentTypeFilterRecall": 1,
+      "retrievedDocumentTypeRecall": 1,
+      "answer": "みらい物流では、P1障害発生から**30分以内**に一次報告が必要です。報告内容は、**影響範囲・暫定原因・次回報告予定**です。",
+      "judgeDetails": "✅ P1障害発生時は30分以内に一次報告を行う: P1障害発生時に30分以内の一次報告が必要であると明記されており、Expected Factを満たしています。追加の報告内容も矛盾しません。\n✅ 一次報告では影響範囲を共有する: Actual Answerには、一次報告の内容として「影響範囲」が明記されており、Expected Factを満たしています。\n✅ 一次報告では暫定原因を共有する: Actual Answerには、一次報告の内容として「暫定原因」が明確に含まれており、Expected Factを満たしています。\n✅ 一次報告では次回報告予定を共有する: Actual Answerには、一次報告の内容として「次回報告予定」を共有することが明確に含まれており、Expected Factを満たしています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-013",
+      "query": "北斗リテールのサポート対応時間を確認して",
+      "stringMatched": "0/1",
+      "stringFactRecall": 0,
+      "semanticMatched": "1/1",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "回答の「平日9:00〜18:00」は、Contextの契約情報にある supportLevel「平日9:00-18:00」と明確に一致しており、完全に裏付けられています。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "北斗リテールのサポート対応時間は、**平日9:00〜18:00**です。",
+      "judgeDetails": "✅ サポート対応時間は平日9:00から18:00まで: Actual Answerは、サポート対応時間が平日9:00から18:00までであると明確に述べており、Expected Factと一致しています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-014",
+      "query": "AIがタスクを作成する場合、人間の承認は必要？また登録時の必須項目は？",
+      "stringMatched": "0/5",
+      "stringFactRecall": 0,
+      "semanticMatched": "5/5",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "回答の全主張は、Context内の「タスク管理ルール」に明記されています。AIはタスク案を作成できる一方、実際の登録・更新・削除にはユーザー承認が必要であり、必須項目も「タスク名、担当者、期限、顧客またはプロジェクトID」と一致しています。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "AIはタスク案を作成できますが、実際の登録・更新・削除には人間（ユーザー）の承認が必要です。\n\n登録時の必須項目は以下です。\n- タスク名\n- 担当者\n- 期限\n- 顧客またはプロジェクトID",
+      "judgeDetails": "✅ 実際のタスク登録・更新・削除にはユーザー承認が必要: Actual Answerは、実際のタスク登録・更新・削除にはユーザーの承認が必要であると明確に述べており、Expected Factを満たしています。追加の必須項目の説明も矛盾しません。\n✅ タスク名が必須: Actual Answerに「登録時の必須項目」としてタスク名が明記されており、Expected Factを満たしています。\n✅ 担当者が必須: Actual Answerの必須項目に「担当者」が明記されており、Expected Factを満たしています。\n✅ 期限が必須: Actual Answerに登録時の必須項目として「期限」が明記されており、Expected Factを満たしています。\n✅ 顧客またはプロジェクトIDが必須: Actual Answerに、登録時の必須項目として「顧客またはプロジェクトID」が明記されており、Expected Factを満たしています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-015",
+      "query": "社内AIを利用するとき、顧客の個人情報や認証情報は外部AIサービスへ送ってよい？",
+      "stringMatched": "0/2",
+      "stringFactRecall": 0,
+      "semanticMatched": "2/2",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "主要な主張はすべてContextに明確な根拠があります。情報セキュリティポリシーには、顧客の個人情報や認証情報を外部AIサービスへ送信してはならないこと、および入力データの利用目的と権限を確認することが明記されています。また、社内AIアシスタント利用ガイドには認証情報の表示禁止が記載されています。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "いいえ。社内AI利用時であっても、顧客の個人情報や認証情報を外部AIサービスへ送信してはいけません。入力前に利用目的と権限を確認し、認証情報の表示も禁止されています。",
+      "judgeDetails": "✅ 顧客の個人情報を外部AIサービスへ送信してはならない: Actual Answerは、顧客の個人情報を外部AIサービスへ送信してはならないと明確に述べており、Expected Factを満たしています。\n✅ 認証情報を外部AIサービスへ送信してはならない: Actual Answerは、認証情報を外部AIサービスへ送信してはいけないと明確に述べており、Expected Factの意味を満たしています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    }
+  ]
+}

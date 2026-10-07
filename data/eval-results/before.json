@@ -1,0 +1,130 @@
+{
+  "generatedAt": "2026-10-07T01:05:05.501Z",
+  "averages": {
+    "stringFactRecall": 0,
+    "semanticFactRecall": 0.75,
+    "groundedness": 0.8,
+    "toolRecall": 0.75
+  },
+  "results": [
+    {
+      "id": "case-011",
+      "query": "青空テックのSSO証明書の有効期限が90日以内の場合、何をするべき？",
+      "stringMatched": "0/2",
+      "stringFactRecall": 0,
+      "semanticMatched": "1/2",
+      "semanticFactRecall": 0.5,
+      "groundednessScore": 0.5,
+      "groundednessReason": "青空テック固有の手順を確認できなかった点、タスク案に担当者・期限・顧客またはプロジェクトIDが必要な点、登録・更新・削除・外部送信に人間の承認が必要な点はContextに裏付けられています。一方、有効期限・影響範囲の確認、顧客への更新計画や切替日時の連絡、検証環境でのテストおよび動作確認計画はContextに記載がなく、一般論として追加された情報です。",
+      "toolRecall": 1,
+      "documentTypeFilterRecall": 0,
+      "retrievedDocumentTypeRecall": 0,
+      "answer": "青空テック固有のSSO証明書更新手順は確認できませんでした。一般的には、以下を実施してください。\n\n1. 証明書の有効期限と影響範囲を確認\n2. 更新作業の担当者・期限・顧客またはプロジェクトIDを含むタスク案を作成\n3. 青空テックの担当者へ更新計画と必要な作業・切替日時を連絡\n4. 検証環境で新証明書をテストし、切替後の動作確認計画を立てる\n5. 実際の更新・外部連絡は人間の承認を得て実施\n\nなお、社内ルール上、AIはタスク案の作成はできますが、登録・更新・削除や外部送信は承認なしに実行できません。",
+      "judgeDetails": "❌ 証明書の更新予定を確認する: 証明書の更新予定を実際に確認した結果が示されておらず、一般的な更新手順や計画作成の案内にとどまっているため。\n✅ 担当者へ連絡する: 青空テックの担当者へ更新計画や必要作業、切替日時を連絡すると明記されており、「担当者へ連絡する」という意味を満たしています。",
+      "diagnosis": {
+        "issues": [
+          "answer_incomplete",
+          "ungrounded_answer",
+          "document_type_filter",
+          "retrieval_failure"
+        ],
+        "suggestions": [
+          "回答に必要な事実が不足しているため、質問の各論点を回答前に確認する。",
+          "取得したContextにない情報を回答へ追加しない。必要なら追加検索する。",
+          "質問内容から適切なdocumentTypeを判断できるよう検索戦略を改善する。",
+          "必要な文書種別を取得できていないため、Filter・検索Query・再検索条件を見直す。"
+        ]
+      }
+    },
+    {
+      "id": "case-012",
+      "query": "みらい物流でP1障害が発生した場合、一次報告はいつまでに何を報告する必要がある？",
+      "stringMatched": "0/4",
+      "stringFactRecall": 0,
+      "semanticMatched": "1/4",
+      "semanticFactRecall": 0.25,
+      "groundednessScore": 1,
+      "groundednessReason": "回答の主張は、契約の特約事項「P1障害は30分以内に一次報告」に明確に裏付けられています。",
+      "toolRecall": 0.5,
+      "documentTypeFilterRecall": 0,
+      "retrievedDocumentTypeRecall": 0,
+      "answer": "みらい物流でP1障害が発生した場合、**30分以内**に一次報告が必要です。",
+      "judgeDetails": "✅ P1障害発生時は30分以内に一次報告を行う: P1障害発生時に30分以内の一次報告が必要であると明確に述べており、Expected Factと一致しています。\n❌ 一次報告では影響範囲を共有する: Actual Answerは一次報告の期限（30分以内）のみ述べており、Expected Factで必要な「影響範囲を共有する」という内容が欠けています。\n❌ 一次報告では暫定原因を共有する: Actual Answerは一次報告の期限（30分以内）のみを述べており、Expected Factで必要な「暫定原因を共有する」という内容が欠けています。\n❌ 一次報告では次回報告予定を共有する: Actual Answerは一次報告の期限（30分以内）のみを述べており、Expected Factで必要な「一次報告で次回報告予定を共有する」という情報が欠けています。",
+      "diagnosis": {
+        "issues": [
+          "answer_incomplete",
+          "tool_selection",
+          "document_type_filter",
+          "retrieval_failure"
+        ],
+        "suggestions": [
+          "回答に必要な事実が不足しているため、質問の各論点を回答前に確認する。",
+          "必要なToolをすべて使用できるようAgent instructionsを見直す。",
+          "質問内容から適切なdocumentTypeを判断できるよう検索戦略を改善する。",
+          "必要な文書種別を取得できていないため、Filter・検索Query・再検索条件を見直す。"
+        ]
+      }
+    },
+    {
+      "id": "case-013",
+      "query": "北斗リテールのサポート対応時間を確認して",
+      "stringMatched": "0/1",
+      "stringFactRecall": 0,
+      "semanticMatched": "1/1",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "Actual Answerの「平日9:00〜18:00」は、Provided ContextのsupportLevelに明記されており、回答は完全に裏付けられています。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "北斗リテールのサポート対応時間は、**平日9:00〜18:00**です。",
+      "judgeDetails": "✅ サポート対応時間は平日9:00から18:00まで: Actual Answerは、サポート対応時間が平日9:00から18:00までであると明確に述べており、Expected Factと一致しています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-014",
+      "query": "AIがタスクを作成する場合、人間の承認は必要？また登録時の必須項目は？",
+      "stringMatched": "0/5",
+      "stringFactRecall": 0,
+      "semanticMatched": "5/5",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "回答の全主張は「タスク管理ルール」に明記されています。AIはタスク案を作成できる一方、実際の登録・更新・削除にはユーザー承認が必要であり、必須項目もタスク名、担当者、期限、顧客またはプロジェクトIDとしてContextと完全に一致しています。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "AIはタスク案を作成できますが、実際の登録・更新・削除には人間（ユーザー）の承認が必要です。\n\n登録時の必須項目は以下です。\n- タスク名\n- 担当者\n- 期限\n- 顧客またはプロジェクトID",
+      "judgeDetails": "✅ 実際のタスク登録・更新・削除にはユーザー承認が必要: 実際のタスク登録・更新・削除にはユーザーの承認が必要であると明確に述べており、Expected Factの意味を満たしています。追加の必須項目情報も矛盾しません。\n✅ タスク名が必須: Actual Answerは、登録時の必須項目として「タスク名」を明示しており、Expected Factを満たしています。\n✅ 担当者が必須: Actual Answerでは、登録時の必須項目として「担当者」が明記されており、Expected Factを満たしています。\n✅ 期限が必須: Actual Answerの必須項目に「期限」が明記されており、Expected Factの「期限が必須」を満たしています。\n✅ 顧客またはプロジェクトIDが必須: Actual Answerに「登録時の必須項目」として「顧客またはプロジェクトID」が明記されており、Expected Factを満たしています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-015",
+      "query": "社内AIを利用するとき、顧客の個人情報や認証情報は外部AIサービスへ送ってよい？",
+      "stringMatched": "0/2",
+      "stringFactRecall": 0,
+      "semanticMatched": "2/2",
+      "semanticFactRecall": 1,
+      "groundednessScore": 0.5,
+      "groundednessReason": "外部AIサービスへの顧客個人情報・認証情報の送信禁止、機密情報としての扱い、利用目的と権限の確認はContextに明記されています。一方、「必要最小限の情報のみを利用する」という要件はContextに明示されていないため、一部に根拠のない追加情報があります。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "いいえ。顧客の個人情報や認証情報を外部AIサービスへ送信してはいけません。機密情報として扱い、利用目的・権限を確認したうえで、必要最小限の情報のみを利用してください。",
+      "judgeDetails": "✅ 顧客の個人情報を外部AIサービスへ送信してはならない: Actual Answerは、顧客の個人情報を外部AIサービスへ送信してはならないと明確に述べており、Expected Factを満たしています。\n✅ 認証情報を外部AIサービスへ送信してはならない: Actual Answerは、認証情報を外部AIサービスへ送信してはいけないと明確に述べており、Expected Factを満たしています。",
+      "diagnosis": {
+        "issues": [
+          "ungrounded_answer"
+        ],
+        "suggestions": [
+          "取得したContextにない情報を回答へ追加しない。必要なら追加検索する。"
+        ]
+      }
+    }
+  ]
+}
