@@ -11,10 +11,11 @@ export async function POST(request: Request) {
     .map((item) => {
       return item.rawItem.name
     })
-
+  console.log('finalOutput', result.finalOutput)
   return Response.json({
     message: result.finalOutput?.message ?? '',
     sources: result.finalOutput?.sources ?? [],
+    pendingAction: result.finalOutput?.pendingAction,
     toolCalls,
   })
 }
