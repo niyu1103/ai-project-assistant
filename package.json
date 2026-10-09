@@ -10,7 +10,9 @@
     "rag:index": "tsx --env-file=.env.local scripts/build-vector-index.ts",
     "rag:documents": "tsx scripts/build-rag-documents.ts",
     "rag:evaluate": "tsx --env-file=.env.local scripts/evaluate-rag.ts",
-    "rag:evaluate:answer": "tsx --env-file=.env.local scripts/evaluate-answer.ts"
+    "rag:evaluate:answer": "tsx --env-file=.env.local scripts/evaluate-answer.ts",
+    "rag:compare": "tsx --env-file=.env.local scripts/compare-eval.ts",
+    "rag:evaluate-monthly-report": "tsx --env-file=.env.local scripts/evaluate-monthly-report.ts"
   },
   "dependencies": {
     "@openai/agents": "^0.18.0",
