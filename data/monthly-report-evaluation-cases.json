@@ -1,0 +1,73 @@
+[
+  {
+    "id": "monthly-report-001",
+    "description": "青空テック2026年9月月次報告書",
+    "expectedExtraction": {
+      "customerId": "cust-001",
+      "customerName": "青空テック",
+      "reportMonth": "2026-09",
+      "apiUsageRate": 82,
+      "slaRate": 99.92,
+      "incidentCount": 3,
+      "criticalIncidentCount": 1,
+      "ssoCertificateExpirationDate": "2026-11-18",
+      "risks": [
+        {
+          "name": "API利用率上昇",
+          "level": "中",
+          "status": "週次で利用率を確認。85%超過時は担当者へ通知予定。"
+        },
+        {
+          "name": "SSO証明書更新",
+          "level": "中",
+          "status": "更新予定を確認中。担当: 田中 美咲。"
+        },
+        {
+          "name": "重大障害の再発",
+          "level": "中",
+          "status": "原因分析と再発防止策を10月第1週までにレビュー予定。"
+        }
+      ],
+      "nextActions": [
+        "API利用率の週次確認を継続し、85%超過時はアカウント担当へ連絡する。",
+        "SSO証明書の新証明書発行状況と切り替え予定日を確認する。",
+        "重大障害の再発防止策レビューを完了し、議事録をプロジェクト文書へ反映する。"
+      ]
+    },
+    "expectedTools": [
+      "get_contract",
+      "get_incidents",
+      "search_documents_semantic"
+    ],
+    "unexpectedTools": ["get_project"],
+    "expectedFacts": [
+      "API利用率は82%",
+      "SSO証明書の有効期限は2026-11-18",
+      "重大障害が1件",
+      "契約上のSLAは99.9%",
+      "実績SLAは99.92%"
+    ],
+    "expectedAnswerChecks": [
+      {
+        "name": "API利用率",
+        "allOf": ["82", "API"]
+      },
+      {
+        "name": "SSO証明書期限",
+        "allOf": ["2026", "11", "18", "SSO"]
+      },
+      {
+        "name": "重大障害",
+        "allOf": ["重大障害", "1"]
+      },
+      {
+        "name": "契約SLA",
+        "allOf": ["99.9", "SLA"]
+      },
+      {
+        "name": "実績SLA",
+        "allOf": ["99.92", "SLA"]
+      }
+    ]
+  }
+]

@@ -124,5 +124,50 @@
       "顧客の個人情報を外部AIサービスへ送信してはならない",
       "認証情報を外部AIサービスへ送信してはならない"
     ]
+  },
+  {
+    "id": "case-customer-mismatch-001",
+    "query": "青空機械株式会社のSSO証明書の有効期限が90日以内の場合、何をするべき？",
+    "expectedFiles": [],
+    "expectedTools": ["get_customer"],
+    "expectedFacts": ["顧客を特定できない", "顧客固有の対応手順を確認できない"]
+  },
+  {
+    "id": "case-sso-over-90-days",
+    "query": "青空テックのSSO証明書の有効期限が90日以上の場合、何をする必要がありますか？",
+    "expectedFacts": ["90日を超える場合の必須対応は文書から確認できない"]
+  },
+  {
+    "id": "case-sso-900-days",
+    "query": "青空テックのSSO証明書の有効期限が900日以内の場合、何をする必要がありますか？",
+    "expectedFacts": [
+      "文書上の基準は90日以内である",
+      "900日以内という条件とは一致しない"
+    ]
+  },
+  {
+    "id": "case-certificate-ambiguous",
+    "query": "青空テックの証明書の有効期限が90日以内の場合、何をする必要がありますか？",
+    "expectedFacts": ["証明書の種類を特定できない"]
+  },
+  {
+    "id": "case-sso-tomorrow",
+    "query": "青空テックのSSO証明書の有効期限が明日の場合、何をする必要がありますか？",
+    "expectedFacts": ["30日以内に該当する", "優先度を上げる"]
+  },
+  {
+    "query": "この月次報告書から今月注意すべき点を教えてください",
+    "expectedTools": [
+      "get_contract",
+      "get_incidents",
+      "search_documents_semantic"
+    ],
+    "unexpectedTools": ["get_project"],
+    "expectedFacts": [
+      "API利用率82%",
+      "SSO証明書有効期限2026年11月18日",
+      "重大障害1件",
+      "SLA99.92%は契約上の99.9%を上回る"
+    ]
   }
 ]
