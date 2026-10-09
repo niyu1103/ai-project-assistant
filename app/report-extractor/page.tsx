@@ -148,7 +148,10 @@ export default function ReportExtractorPage() {
       </div>
       {result && (
         <section className='mt-8'>
-          <h2 className='mb-4 text-lg font-bold'>抽出結果</h2>
+          <h2 className='mb-4 text-lg font-bold'>
+            抽出結果:
+            {file?.name}
+          </h2>
 
           <pre className='overflow-auto rounded bg-gray-100 p-4 text-sm'>
             {JSON.stringify(result, null, 2)}
@@ -168,7 +171,7 @@ export default function ReportExtractorPage() {
       )}
       {analysis && (
         <section className='mt-8'>
-          <h2 className='mb-4 text-lg font-bold'>Agent分析</h2>
+          <h2 className='mb-4 text-lg font-bold'>Agent分析: {file?.name}</h2>
 
           <div className='rounded bg-gray-100 p-4 whitespace-pre-wrap'>
             <ReactMarkdown>{analysis}</ReactMarkdown>
