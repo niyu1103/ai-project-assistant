@@ -5,61 +5,180 @@ OpenAI Agents SDK と Databricks AI Search を利用した、
 
 顧客・契約・プロジェクト・障害情報などの構造化データと、  
 社内文書の非構造データを組み合わせ、  
-質問内容に応じて Agent が適切な Tool を選択して回答します。
+質問内容に応じて Agent が適切な Tool / RAG を利用して回答します。
 
-現在は、RAG の検索品質評価や Metadata Filter、Structured Output、Tracing などを実装しています。
+現在は RAG 検索だけでなく、
+
+- External API
+- Write Tool
+- Human-in-the-loop
+- Event-driven RAG Update
+- PDF / Image Structured Extraction
+- Evaluation
+
+まで含めた AI Application 全体の構成を実装しています。
 
 ---
 
 ## Features
 
-- OpenAI Agents SDK を利用した AI Agent
+### AI Agent
+
+- OpenAI Agents SDK
 - Tool Calling
-- 複数 Tool の組み合わせ
-- Databricks AI Search を利用した RAG
+- Multiple Tool Calling
+- Structured Output
+- OpenAI Agents SDK Tracing
+- Tool Selection Control
+- Grounded Answer Rules
+
+### RAG
+
+- Databricks AI Search
 - Hybrid Search
 - Metadata Filter
-  - customerId
-  - documentType
+  - `customerId`
+  - `documentType`
+- Top-K Retrieval
+- Chunking
+- Source Display
+
+### External API / Action
+
+- External REST API Integration
+- API usage retrieval
+- Write Tool
+- Human-in-the-loop
+- `pendingAction` による承認フロー
+
+### Document Extraction
+
+- PDF 月次報告書解析
+- PNG / Image 月次報告書解析
 - Structured Output
-- 回答の参照文書表示
-- OpenAI Agents SDK Tracing
-- Retrieval Evaluation
-  - Recall
-  - Precision
+- Customer Master Validation
+- PDF / Image 共通スキーマへの正規化
+
+### Evaluation
+
+- Retrieval Recall
+- Retrieval Precision
+- Extraction Eval
+- Tool Selection Eval
+- Answer Eval
+- Groundedness Eval
+- LLM-as-a-Judge
+
+### AI Ops
+
+- S3 Document Upload
+- EventBridge
+- Lambda
+- Databricks Job
+- Automatic RAG Data Update
+- AI Search Index Sync
+- Automatic Evaluation
+- Failure Notification
+- DynamoDB によるイベント重複実行防止
 
 ---
 
 ## Architecture
 
 ```text
-User
-  ↓
-Next.js UI
-  ↓
-OpenAI Agents SDK
-  ↓
-Project Assistant
-  ├─ get_customer
-  ├─ get_project
-  ├─ get_contract
-  ├─ get_incidents
-  └─ search_documents_semantic
-         ↓
-     Databricks AI Search
-         ↓
-     Metadata Filter
-         ↓
-     Hybrid Search
-         ↓
-     Top-K Retrieval
-  ↓
-Structured Output
-  ├─ message
-  └─ sources[]
-  ↓
-UI
+                        ┌─────────────────────┐
+                        │       User          │
+                        └──────────┬──────────┘
+                                   ↓
+                        ┌─────────────────────┐
+                        │      Next.js UI     │
+                        └──────────┬──────────┘
+                                   ↓
+                        ┌─────────────────────┐
+                        │ OpenAI Agents SDK   │
+                        └──────────┬──────────┘
+                                   ↓
+                        ┌─────────────────────┐
+                        │ Project Assistant   │
+                        └──────────┬──────────┘
+                                   │
+             ┌─────────────────────┼─────────────────────┐
+             ↓                     ↓                     ↓
+
+        Structured Tools         RAG                External API
+
+        get_customer      search_documents_        get_api_usage
+        get_project       semantic
+        get_contract             ↓                 Write Tool
+        get_incidents     Databricks AI Search            ↓
+                                 ↓                 Human Approval
+                          Metadata Filter
+                                 ↓
+                           Hybrid Search
+                                 ↓
+                           Top-K Retrieval
+
+                                   ↓
+                        Structured Output
+                        ├─ message
+                        ├─ sources[]
+                        └─ pendingAction
+                                   ↓
+                                  UI
 ```
+
+---
+
+## Monthly Report Flow
+
+PDF / Image の月次報告書を Structured Output に変換し、  
+Agent の Context として利用します。
+
+```text
+PDF / PNG
+   ↓
+extractMonthlyReport()
+   ↓
+Structured Output
+   ↓
+Customer Master Validation
+   ↓
+customerVerified=true
+   ↓
+Agent
+   ↓
+Tool / RAG
+   ↓
+Analysis
+```
+
+抽出する主な情報:
+
+```text
+customerId
+customerName
+reportMonth
+apiUsageRate
+slaRate
+incidentCount
+criticalIncidentCount
+ssoCertificateExpirationDate
+risks
+nextActions
+```
+
+`risks` は以下の形式に構造化しています。
+
+```ts
+{
+  name: string
+  level: string | null
+  status: string | null
+}
+```
+
+PDF / Image で同じ意味の情報が同じ Structured Output になるよう、  
+抽出ルールと日付形式を正規化しています。
 
 ---
 
@@ -89,6 +208,13 @@ UI
 - Embedding
 - Vector Search
 
+### AWS / AI Ops
+
+- Amazon S3
+- Amazon EventBridge
+- AWS Lambda
+- Amazon DynamoDB
+
 ---
 
 ## Project Structure
@@ -101,8 +227,17 @@ ai-project-assistant/
 │
 ├─ app/
 │  ├─ api/
-│  │  └─ agent/
+│  │  ├─ agent/
+│  │  │  ├─ route.ts
+│  │  │  └─ approve/
+│  │  │     └─ route.ts
+│  │  │
+│  │  └─ extract-report/
 │  │     └─ route.ts
+│  │
+│  ├─ report-extractor/
+│  │  └─ page.tsx
+│  │
 │  └─ page.tsx
 │
 ├─ data/
@@ -112,11 +247,12 @@ ai-project-assistant/
 │  ├─ projects.json
 │  ├─ incidents.json
 │  ├─ document-metadata.json
-│  └─ rag-evaluation-cases.json
+│  ├─ rag-evaluation-cases.json
+│  └─ monthly-report-evaluation-cases.json
 │
 ├─ lib/
-│  ├─ openai.ts
-│  └─ databricks.ts
+│  ├─ databricks.ts
+│  └─ extract-monthly-report.ts
 │
 ├─ rag/
 │  ├─ chunk.ts
@@ -126,21 +262,22 @@ ai-project-assistant/
 ├─ scripts/
 │  ├─ build-vector-index.ts
 │  ├─ build-rag-documents.ts
-│  └─ evaluate-rag.ts
+│  ├─ evaluate-rag.ts
+│  └─ evaluate-monthly-report.ts
 │
 └─ tools/
    ├─ get-customer.ts
    ├─ get-project.ts
    ├─ get-contract.ts
    ├─ get-incidents.ts
+   ├─ get-api-usage.ts
+   ├─ create-api-limit-request.ts
    └─ search-documents-semantic.ts
 ```
 
 ---
 
 ## Agent Tools
-
-現在の Agent では、質問内容に応じて以下の Tool を使用します。
 
 ### `get_customer`
 
@@ -152,15 +289,19 @@ ai-project-assistant/
 
 ### `get_contract`
 
-契約情報を取得します。
+契約期間、SLA、サポート条件などの契約情報を取得します。
 
 ### `get_incidents`
 
-障害情報を取得します。
+障害履歴、原因、影響、再発防止策などを取得します。
+
+### `get_api_usage`
+
+外部 API から現在の API 利用状況を取得します。
 
 ### `search_documents_semantic`
 
-Databricks AI Search を利用して、社内文書を Semantic / Hybrid Search します。
+Databricks AI Search を利用して社内文書を Semantic / Hybrid Search します。
 
 必要に応じて、
 
@@ -169,42 +310,49 @@ Databricks AI Search を利用して、社内文書を Semantic / Hybrid Search 
 
 による Metadata Filter を適用します。
 
+### `create_api_limit_request`
+
+API 利用上限変更申請を作成する実行系 Tool です。
+
+直接実行せず、  
+Human-in-the-loop の承認フローを経由して実行します。
+
 ---
 
 ## RAG
 
-RAG は以下の流れで実装しています。
-
 ```text
 Document
-  ↓
+   ↓
 Chunk
-  ↓
+   ↓
 Embedding
-  ↓
-Vector Index
-  ↓
+   ↓
+Databricks
+   ↓
+AI Search Index
 
 User Query
-  ↓
-Semantic / Hybrid Search
-  ↓
+   ↓
+Metadata Filter
+   ↓
+Hybrid Search
+   ↓
 Top-K Retrieval
-  ↓
+   ↓
 LLM Context
-  ↓
+   ↓
 Answer
 ```
 
-初期実装ではローカルで Embedding と cosine similarity を利用した Semantic Search を実装しました。
+初期実装ではローカルで Embedding と cosine similarity を利用した  
+Semantic Search を実装しました。
 
 その後、検索処理を Databricks AI Search に移行しています。
 
 ---
 
 ## Databricks
-
-使用している Databricks オブジェクト:
 
 ```text
 Catalog:
@@ -223,7 +371,33 @@ AI Search Index:
 workspace.ai_project_assistant.rag_documents_index
 ```
 
-AI Search では Hybrid Search を使用しています。
+AI Search では Hybrid Search と Metadata Filter を利用しています。
+
+---
+
+## Event-driven RAG Update
+
+S3 の文書更新を起点として、  
+Databricks 側の RAG データと AI Search Index を自動更新します。
+
+```text
+S3
+ ↓
+EventBridge
+ ↓
+Lambda
+ ↓
+Databricks Job
+ ├─ ingest_s3_rag_documents
+ ├─ sync_rag_documents_index
+ └─ evaluate_rag
+```
+
+Evaluation が失敗した場合は Databricks Job を失敗させ、  
+通知を行います。
+
+また DynamoDB に Event ID を保存し、  
+同一イベントによる Databricks Job の重複実行を防止しています。
 
 ---
 
@@ -235,20 +409,50 @@ Agent の最終出力は Zod を利用して構造化しています。
 {
   message: string
   sources: string[]
+  pendingAction: {
+    type: 'api_limit_request'
+    customerId: string
+    customerName: string
+    requestedLimit: number
+    reason: string
+  } | null
 }
 ```
 
-`message` には回答本文、`sources` には実際に回答根拠として使用した文書を格納します。
+`message` には回答本文、  
+`sources` には実際に回答根拠として使用した社内文書を格納します。
 
-これにより、回答本文と参照文書を UI 上で分離して表示しています。
+更新操作が必要な場合は `pendingAction` を返し、  
+ユーザー承認後に実行します。
 
 ---
 
-## RAG Evaluation
+## Human-in-the-loop
+
+外部システムを書き換える Tool は、  
+Agent が直接実行しないようにしています。
+
+```text
+Agent
+ ↓
+Action Proposal
+ ↓
+pendingAction
+ ↓
+Human Approval
+ ↓
+Write Tool
+ ↓
+External API
+```
+
+---
+
+## Evaluation
+
+### Retrieval Evaluation
 
 Databricks AI Search の検索品質を Recall / Precision で評価しています。
-
-### Evaluation Results
 
 | 設定                              | Recall | Precision |
 | --------------------------------- | -----: | --------: |
@@ -256,53 +460,124 @@ Databricks AI Search の検索品質を Recall / Precision で評価していま
 | Top-K = 3                         |   1.00 |      0.67 |
 | Top-K = 3 + `documentType` filter |   1.00 |      0.76 |
 
-### Result
+Metadata Filter によって、  
+Recall を維持しながら Precision が改善することを確認しました。
 
-Top-K を `5 → 3` に変更することで、Recall を維持したまま Precision が改善しました。
+### Chunk Size Comparison
 
-さらに、ユーザーの検索意図が明確なケースで `documentType` Metadata Filter を適用することで、
+| Chunk Size | Overlap | Recall | Precision |
+| ---------: | ------: | -----: | --------: |
+|        500 |     100 |   0.97 |      0.78 |
+|       1000 |     200 |   0.92 |      0.72 |
+
+現在の評価データでは、
 
 ```text
-Precision
-0.59 → 0.76
+chunkSize = 500
+overlap = 100
 ```
 
-まで改善しました。
-
-現在の評価ケース数はまだ少ないため、Top-K = 3 が常に最適であるとは限りません。
-
-今後は評価ケースを増やし、
-
-- Chunk 設計
-- Metadata Filter
-- Retrieval quality
-- Answer quality
-
-を継続的に評価します。
+の方が Recall / Precision ともに高い結果となりました。
 
 ---
 
-## Evaluation
+## Monthly Report Evaluation
 
-RAG Evaluation は以下で実行できます。
+PDF / Image の月次報告書について、  
+以下の4段階で評価しています。
+
+```text
+PDF / Image
+   ↓
+Extraction Eval
+   ↓
+Tool Selection Eval
+   ↓
+Answer Eval
+   ↓
+Groundedness Eval
+```
+
+### Extraction Eval
+
+PDF / Image から抽出した Structured Output を  
+Expected Data と比較します。
+
+確認内容:
+
+- customerId
+- customerName
+- reportMonth
+- API Usage
+- SLA
+- Incident Count
+- SSO Certificate
+- Risks
+- Next Actions
+
+### Tool Selection Eval
+
+Agent が必要な Tool を正しく選択できるかを評価します。
+
+例:
+
+```text
+SLA
+→ get_contract
+
+Critical Incident
+→ get_incidents
+
+SSO Certificate
+→ search_documents_semantic
+```
+
+### Answer Eval
+
+最終回答に必要な情報が含まれているかを評価します。
+
+### Groundedness Eval
+
+月次報告書・Tool Output・RAG Context を Grounding Context とし、  
+LLM-as-a-Judge で回答内の未根拠な主張を検出します。
+
+評価対象:
+
+- Hallucination
+- Unsupported Claims
+- Incorrect Dates
+- Unsupported Conditions
+- Overstatement
+
+意図的に未根拠な期限・断定を追加したケースで  
+FAIL になることも確認しています。
+
+---
+
+## Evaluation Commands
+
+### RAG Evaluation
 
 ```bash
 pnpm rag:evaluate
 ```
 
-現在は以下を評価しています。
+### Monthly Report Evaluation
 
-- Retrieval Recall
-- Retrieval Precision
+```bash
+pnpm rag:evaluate-monthly-report
+```
 
-今後追加予定:
+Monthly Report Evaluation では現在、
 
-- Correctness
-- Groundedness
-- Relevance
-- Citation accuracy
-- Tool selection accuracy
-- LLM-as-a-judge
+```text
+Extraction Eval
+Tool Selection Eval
+Answer Eval
+Groundedness Eval
+```
+
+を実行します。
 
 ---
 
@@ -334,8 +609,6 @@ DATABRICKS_INDEX_NAME=
 pnpm dev
 ```
 
-ブラウザで以下を開きます。
-
 ```text
 http://localhost:3000
 ```
@@ -345,108 +618,90 @@ http://localhost:3000
 ## Current Status
 
 ```text
-LLM Basics                ✅
-Tool Calling              ✅
-Multiple Tools            ✅
-Tracing                   ✅
+LLM Basics                       ✅
+Tool Calling                     ✅
+Multiple Tools                   ✅
+Tracing                          ✅
 
-Local RAG                  ✅
-Embedding                  ✅
-Vector Search              ✅
-Metadata Filter            ✅
+Local RAG                        ✅
+Embedding                        ✅
+Vector Search                    ✅
+Metadata Filter                  ✅
 
-Databricks Delta Table     ✅
-Databricks AI Search       ✅
-Hybrid Search              ✅
+Databricks Delta Table           ✅
+Databricks AI Search             ✅
+Hybrid Search                    ✅
 
-Structured Output          ✅
-Source Display             ✅
+Structured Output                ✅
+Source Display                   ✅
 
-Retrieval Evaluation       ✅
+Retrieval Evaluation             ✅
+Tool Selection Evaluation        ✅
+Answer Evaluation                ✅
+Groundedness Evaluation          ✅
+LLM-as-a-Judge                   ✅
 
-Answer Evaluation          🚧
-PDF / OCR RAG              🚧
-External API Integration   🚧
-Write Tools                🚧
-Human-in-the-loop          🚧
-Guardrails                 🚧
-Conversation State         🚧
-Multi-Agent                🚧
+External API Integration         ✅
+Write Tool                       ✅
+Human-in-the-loop                ✅
+
+PDF Structured Extraction        ✅
+Image Structured Extraction      ✅
+Customer Master Validation       ✅
+
+S3 → Databricks RAG Update       ✅
+Databricks Job Evaluation        ✅
+Failure Notification             ✅
+Event Idempotency                ✅
+
+Guardrails                       🚧
+Conversation State               🚧
+Multi-Agent                      🚧
+Cost / Token Optimization        🚧
+Production Hardening             🚧
 ```
 
 ---
 
 ## Roadmap
 
-### 1. RAG Quality Improvement
+### 1. Evaluation Expansion
 
-- Top-K tuning
-- Metadata Filter
-- Chunk size comparison
-- Retrieval Evaluation
+- Evaluation Case Expansion
+- Different PDF Layouts
+- Multi-page PDF
+- Scanned Documents
+- Low-resolution Images
+- Missing Fields
+- Different Report Formats
 
-### 2. Evaluation
+### 2. File Format Expansion
 
-- Evaluation cases expansion
-- Correctness
-- Groundedness
-- Citation accuracy
-- LLM-as-a-judge
-
-### 3. PDF / OCR RAG
+共通 Structured Output への正規化対象を増やします。
 
 ```text
 PDF
-↓
-OCR / Text Extraction
-↓
-Preprocessing
-↓
-Chunk
-↓
-Metadata
-↓
-Databricks AI Search
-↓
-Evaluation
+Image
+Word
+CSV
+Excel
+ ↓
+Common Structured Output
 ```
 
-### 4. External API Integration
+### 3. Guardrails
 
-Agent から外部 REST API を Tool として利用します。
+- Customer Isolation
+- Confidentiality Control
+- Write Permission
+- Hallucination Prevention
+- Input / Output Validation
 
-### 5. Write Tools
+### 4. Conversation State
 
-- `create_task`
-- `update_project`
-- `add_customer_note`
+複数ターンの会話で顧客やプロジェクトの Context を維持します。
 
-### 6. Human-in-the-loop
-
-変更系 Tool の実行前にユーザー承認を行います。
-
-```text
-Agent
-↓
-Action Proposal
-↓
-Human Approval
-↓
-Write Tool
-```
-
-### 7. Guardrails
-
-- Customer isolation
-- Confidentiality control
-- Write permission
-- Hallucination prevention
-
-### 8. Conversation State
-
-複数ターンの会話で顧客やプロジェクトの文脈を維持します。
-
-### 9. Multi-Agent
+### 5. Multi-Agent
 
 ```text
 Supervisor Agent
@@ -456,71 +711,55 @@ Supervisor Agent
 └─ Task Agent
 ```
 
-以下を学習予定です。
+検討対象:
 
 - handoff
 - agent-as-tool
 - supervisor pattern
 
-### 10. Production / Harness
+### 6. Production Hardening
 
 - Retry
 - Timeout
-- Error handling
+- Error Handling
+- SQS / DLQ
+- Service Principal
+- Secret Management
 - Logging
-- Token usage
+- Monitoring
+- Token Usage
 - Latency
-- Cost monitoring
-- Evaluation pipeline
+- Cost Monitoring
 
 ---
 
 ## Learning Goal
 
-このプロジェクトでは、単に LLM API を呼び出すだけではなく、
+このプロジェクトでは単に LLM API を呼び出すだけではなく、
 
 ```text
 Data
-↓
+ ↓
+Ingestion
+ ↓
 Retrieval
-↓
+ ↓
 Context
-↓
+ ↓
 Agent
-↓
+ ↓
 Tools
-↓
-LLM
-↓
+ ↓
+External API
+ ↓
+Human Approval
+ ↓
 Evaluation
-↓
+ ↓
 Improvement
 ```
 
 という AI Application / Agent 全体の設計・実装を学ぶことを目的としています。
 
-### Chunk Size Comparison
-
-| Chunk Size | Overlap | Recall | Precision |
-| ---------: | ------: | -----: | --------: |
-|        500 |     100 |   0.97 |      0.78 |
-|       1000 |     200 |   0.92 |      0.72 |
-
-現在の評価データセットでは、
-`chunkSize=500 / overlap=100` の方が Recall / Precision ともに高かった。
-
-大きいChunkでは複数トピックが1Chunkに混在し、
-検索時の意味的な焦点がぼやけるケースが見られた。
-
-### Python Evaluation
-
-TypeScript版に加えて、
-同じEvaluation Dataset / Ground Truthを利用した
-Python版のRAG Evaluationも実装。
-
-- Databricks AI Search API
-- pandas
-- Recall
-- Precision
-
-TypeScript版と同じ評価結果になることを確認。
+RAG、Agent、Tool、External API、Evaluation、AI Ops を  
+個別の機能ではなく、一連の AI Application Architecture として扱います。
