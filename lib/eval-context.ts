@@ -1,13 +1,13 @@
 type EvalContextItem = {
-  toolName: string
-  input?: unknown
-  content: unknown
-}
+  toolName: string;
+  input?: unknown;
+  content: unknown;
+};
 
-let items: EvalContextItem[] = []
+let items: EvalContextItem[] = [];
 
 export function resetEvalContext() {
-  items = []
+  items = [];
 }
 
 export function addEvalContext(
@@ -19,9 +19,9 @@ export function addEvalContext(
     toolName,
     input,
     content,
-  })
+  });
 }
 
 export function getEvalContext() {
-  return [...items]
+  return [...items];
 }

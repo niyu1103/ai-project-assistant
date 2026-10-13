@@ -1,21 +1,21 @@
-import OpenAI from 'openai'
+import OpenAI from "openai";
 
-const openai = new OpenAI()
+const openai = new OpenAI();
 
 type GroundednessJudgeResult = {
-  score: number
-  reason: string
-}
+  score: number;
+  reason: string;
+};
 
 export async function judgeGroundedness(
   answer: string,
   context: string,
 ): Promise<GroundednessJudgeResult> {
   const response = await openai.responses.create({
-    model: 'gpt-5.6',
+    model: "gpt-5.6",
     input: [
       {
-        role: 'system',
+        role: "system",
         content: `
 あなたはRAGシステムのGroundedness評価者です。
 
@@ -47,7 +47,7 @@ JSONのみ返してください。
         `.trim(),
       },
       {
-        role: 'user',
+        role: "user",
         content: `
 Provided Context:
 ${context}
@@ -57,12 +57,12 @@ ${answer}
         `.trim(),
       },
     ],
-  })
+  });
 
   const parsed = JSON.parse(response.output_text) as {
-    score: number
-    reason: string
-  }
+    score: number;
+    reason: string;
+  };
 
-  return parsed
+  return parsed;
 }

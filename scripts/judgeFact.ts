@@ -1,22 +1,22 @@
-import OpenAI from 'openai'
+import OpenAI from "openai";
 
 type FactJudgeResult = {
-  fact: string
-  matched: boolean
-  reason: string
-}
+  fact: string;
+  matched: boolean;
+  reason: string;
+};
 
-const openai = new OpenAI()
+const openai = new OpenAI();
 
 export async function judgeFact(
   expectedFact: string,
   answer: string,
 ): Promise<FactJudgeResult> {
   const response = await openai.responses.create({
-    model: 'gpt-5.6',
+    model: "gpt-5.6",
     input: [
       {
-        role: 'system',
+        role: "system",
         content: `
 あなたはRAGシステムの回答評価者です。
 
@@ -41,7 +41,7 @@ JSONのみ返してください。
         `.trim(),
       },
       {
-        role: 'user',
+        role: "user",
         content: `
 Expected Fact:
 ${expectedFact}
@@ -51,18 +51,18 @@ ${answer}
         `.trim(),
       },
     ],
-  })
+  });
 
-  const text = response.output_text
+  const text = response.output_text;
 
   const parsed = JSON.parse(text) as {
-    matched: boolean
-    reason: string
-  }
+    matched: boolean;
+    reason: string;
+  };
 
   return {
     fact: expectedFact,
     matched: parsed.matched,
     reason: parsed.reason,
-  }
+  };
 }

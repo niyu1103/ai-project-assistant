@@ -118,9 +118,7 @@
       "answer": "いいえ。顧客の個人情報や認証情報を外部AIサービスへ送信してはいけません。機密情報として扱い、利用目的・権限を確認したうえで、必要最小限の情報のみを利用してください。",
       "judgeDetails": "✅ 顧客の個人情報を外部AIサービスへ送信してはならない: Actual Answerは、顧客の個人情報を外部AIサービスへ送信してはならないと明確に述べており、Expected Factを満たしています。\n✅ 認証情報を外部AIサービスへ送信してはならない: Actual Answerは、認証情報を外部AIサービスへ送信してはいけないと明確に述べており、Expected Factを満たしています。",
       "diagnosis": {
-        "issues": [
-          "ungrounded_answer"
-        ],
+        "issues": ["ungrounded_answer"],
         "suggestions": [
           "取得したContextにない情報を回答へ追加しない。必要なら追加検索する。"
         ]

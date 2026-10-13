@@ -171,9 +171,9 @@ nextActions
 
 ```ts
 {
-  name: string
-  level: string | null
-  status: string | null
+  name: string;
+  level: string | null;
+  status: string | null;
 }
 ```
 
