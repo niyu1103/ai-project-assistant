@@ -7,6 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "fmt": "prettier --write .",
+    "fmt:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "rag:index": "tsx --env-file=.env.local scripts/build-vector-index.ts",
     "rag:documents": "tsx scripts/build-rag-documents.ts",
     "rag:evaluate": "tsx --env-file=.env.local scripts/evaluate-rag.ts",
@@ -32,9 +36,11 @@
     "dotenv": "^18.0.5",
     "eslint": "^9",
     "eslint-config-next": "16.3.7",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.0.3"
   },
   "packageManager": "pnpm@11.13.0"
 }

@@ -1,8 +1,16 @@
-import { run } from '@openai/agents'
-import { projectAgent } from '@/agents/project-agent'
+import { run } from "@openai/agents";
+import { projectAgent } from "@/agents/project-agent";
+import type { AgentContext } from "@/lib/agent-context";
 
 export async function POST(request: Request) {
-  const body = await request.json()
+  const body = await request.json();
+
+  const context: AgentContext = {
+    verifiedCustomerId:
+      body.reportContext?.customerVerified === true
+        ? body.reportContext.customerId
+        : null,
+  };
 
   const agentInput = body.reportContext
     ? `
@@ -23,20 +31,29 @@ export async function POST(request: Request) {
 
       取得したContextにない条件は推測しないでください。
       `
-    : body.message
+    : body.message;
 
-  const result = await run(projectAgent, agentInput)
+  const result = await run(projectAgent, agentInput, {
+    context,
+  });
 
   const toolCalls = result.newItems
-    .filter((item) => item.type === 'tool_call_item')
+    .filter((item) => item.type === "tool_call_item")
     .map((item) => {
-      return item.rawItem.name
+      const rawItem = item.rawItem;
+
+      if (rawItem.type === "function_call") {
+        return rawItem.name;
+      }
+
+      return null;
     })
-  console.log('finalOutput', result.finalOutput)
+    .filter((name): name is string => name !== null);
+  console.log("finalOutput", result.finalOutput);
   return Response.json({
-    message: result.finalOutput?.message ?? '',
+    message: result.finalOutput?.message ?? "",
     sources: result.finalOutput?.sources ?? [],
     pendingAction: result.finalOutput?.pendingAction,
     toolCalls,
-  })
+  });
 }

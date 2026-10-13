@@ -1,38 +1,38 @@
-import { tool } from '@openai/agents'
-import { z } from 'zod'
+import { RunContext, tool } from "@openai/agents";
+import { assertCustomerAccess } from "@/lib/assert-customer-access";
+import { z } from "zod";
 
-import customers from '@/data/customers.json'
-import projects from '@/data/projects.json'
+import customers from "@/data/customers.json";
+import projects from "@/data/projects.json";
+import type { AgentContext } from "@/lib/agent-context";
 
 export const getProjectTool = tool({
-  name: 'get_project',
+  name: "get_project",
 
   description:
-    '顧客名から、その顧客に紐づくプロジェクト情報を取得します。進捗、ステータス、担当者、予算、次回マイルストーンなどを確認するときに使用してください。',
+    "特定済みのcustomerIdから、その顧客に紐づくプロジェクト情報を取得します。進捗、ステータス、担当者、予算、次回マイルストーンなどを確認するときに使用してください。",
 
   parameters: z.object({
-    customerName: z.string().describe('検索する顧客名'),
+    customerId: z.string().describe("get_customer で特定済みの顧客ID"),
   }),
 
-  async execute({ customerName }) {
-    console.log('[get_project]', { customerName })
+  async execute({ customerId }, runContext?: RunContext<AgentContext>) {
+    console.log("[get_project]", { customerId });
 
-    const customer = customers.find(
-      (customer) =>
-        customer.name.includes(customerName) ||
-        customer.shortName.includes(customerName),
-    )
+    assertCustomerAccess(customerId, runContext);
+
+    const customer = customers.find((customer) => customer.id === customerId);
 
     if (!customer) {
       return {
         found: false,
-        message: `${customerName}に一致する顧客が見つかりませんでした。`,
-      }
+        message: `customerId=${customerId} に一致する顧客が見つかりませんでした。`,
+      };
     }
 
     const customerProjects = projects.filter(
       (project) => project.customerId === customer.id,
-    )
+    );
 
     return {
       found: customerProjects.length > 0,
@@ -41,6 +41,6 @@ export const getProjectTool = tool({
         name: customer.name,
       },
       projects: customerProjects,
-    }
+    };
   },
-})
+});

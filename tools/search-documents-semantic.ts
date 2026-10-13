@@ -1,54 +1,73 @@
-import { tool } from '@openai/agents'
-import { z } from 'zod'
+import { RunContext, tool } from "@openai/agents";
+import { z } from "zod";
 
-import customers from '@/data/customers.json'
-import { searchDatabricksDocuments } from '@/lib/databricks'
-import { addEvalContext } from '@/lib/eval-context'
+import { searchDatabricksDocuments } from "@/lib/databricks";
+import { addEvalContext } from "@/lib/eval-context";
+import type { AgentContext } from "@/lib/agent-context";
+import { assertCustomerAccess } from "@/lib/assert-customer-access";
+import { validateSearchScope } from "@/lib/validate-search-scope";
 
 export const searchDocumentsSemanticTool = tool({
-  name: 'search_documents_semantic',
+  name: "search_documents_semantic",
 
   description:
-    'Databricks AI Searchを使って社内文書を意味検索します。契約書、議事録、社内ルール、プロジェクトメモなどを検索するときに使用してください。',
+    "Databricks AI Searchを使って社内文書を意味検索します。契約書、議事録、社内ルール、プロジェクトメモなどを検索するときに使用してください。",
 
   parameters: z.object({
-    query: z.string().describe('検索したい内容'),
+    query: z.string().describe("検索したい内容"),
 
-    customerName: z
+    scope: z
+      .enum(["customer", "global"])
+      .describe(
+        "特定顧客の文書を検索する場合はcustomer、全顧客共通文書を検索する場合はglobal",
+      ),
+
+    customerId: z
       .string()
       .optional()
-      .describe('特定顧客に絞り込む場合の顧客名'),
+      .describe("特定顧客に絞り込む場合の、get_customerで特定済みの顧客ID"),
 
     documentType: z
       .string()
       .optional()
-      .describe('contract, meeting, project, policy, faq などの文書種別'),
+      .describe(
+        "contract, meeting, project, policy, faq, operation_guide などの文書種別",
+      ),
   }),
 
-  async execute({ query, customerName, documentType }) {
-    let customerId: string | undefined
+  async execute(
+    { query, customerId, documentType, scope },
+    runContext?: RunContext<AgentContext>,
+  ) {
+    console.log("[search_documents_semantic]", {
+      query,
+      customerId,
+      documentType,
+      scope,
+    });
 
-    if (customerName) {
-      const customer = customers.find(
-        (customer) =>
-          customer.name.includes(customerName) ||
-          customer.shortName.includes(customerName),
-      )
+    const scopeInput = {
+      scope,
+      customerId,
+    };
 
-      customerId = customer?.id
+    validateSearchScope(scopeInput);
+
+    if (scopeInput.scope === "customer") {
+      assertCustomerAccess(scopeInput.customerId, runContext);
     }
 
-    console.log('[search_documents_semantic]', {
-      query,
-      customerName,
-      customerId,
-      documentType,
-    })
-
-    const results = await searchDatabricksDocuments(query, 5, {
-      customerId,
-      documentType,
-    })
+    const results =
+      scopeInput.scope === "customer"
+        ? await searchDatabricksDocuments(query, {
+            scope: "customer",
+            customerId: scopeInput.customerId,
+            documentType,
+          })
+        : await searchDatabricksDocuments(query, {
+            scope: "global",
+            documentType,
+          });
 
     console.table(
       results.map((result) => ({
@@ -57,19 +76,19 @@ export const searchDocumentsSemanticTool = tool({
         customerId: result.customerId,
         score: result.score,
       })),
-    )
+    );
 
     const output = {
       results,
-    }
+    };
 
-    addEvalContext('search_documents_semantic', output, {
+    addEvalContext("search_documents_semantic", output, {
       query,
-      customerName,
       customerId,
       documentType,
-    })
+      scope,
+    });
 
-    return output
+    return output;
   },
-})
+});

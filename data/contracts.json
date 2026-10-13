@@ -25,9 +25,7 @@
     "noticeDays": 45,
     "sla": "月間稼働率99.5%",
     "supportLevel": "平日9:00-18:00",
-    "specialTerms": [
-      "月次レポートを翌月5営業日以内に提出"
-    ],
+    "specialTerms": ["月次レポートを翌月5営業日以内に提出"],
     "document": "documents/hokuto_contract.md"
   },
   {
