@@ -23,6 +23,10 @@ export const getContractTool = tool({
 
     assertCustomerAccess(customerId, runContext);
 
+    if (runContext?.context.eval?.failTools?.includes("get_contract")) {
+      throw new Error("Injected tool failure: get_contract");
+    }
+
     const customer = customers.find((customer) => customer.id === customerId);
 
     if (!customer) {

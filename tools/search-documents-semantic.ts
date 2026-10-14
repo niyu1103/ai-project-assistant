@@ -39,7 +39,10 @@ export const searchDocumentsSemanticTool = tool({
     { query, customerId, documentType, scope },
     runContext?: RunContext<AgentContext>,
   ) {
-    console.log("[search_documents_semantic]", {
+    const callId = crypto.randomUUID();
+
+    console.log("[search_documents_semantic:start]", {
+      callId,
       query,
       customerId,
       documentType,
@@ -57,38 +60,60 @@ export const searchDocumentsSemanticTool = tool({
       assertCustomerAccess(scopeInput.customerId, runContext);
     }
 
-    const results =
-      scopeInput.scope === "customer"
-        ? await searchDatabricksDocuments(query, {
-            scope: "customer",
-            customerId: scopeInput.customerId,
-            documentType,
-          })
-        : await searchDatabricksDocuments(query, {
-            scope: "global",
-            documentType,
-          });
+    try {
+      const results =
+        scopeInput.scope === "customer"
+          ? await searchDatabricksDocuments(query, {
+              scope: "customer",
+              customerId: scopeInput.customerId,
+              documentType,
+            })
+          : await searchDatabricksDocuments(query, {
+              scope: "global",
+              documentType,
+            });
 
-    console.table(
-      results.map((result) => ({
-        file: result.file,
-        documentType: result.documentType,
-        customerId: result.customerId,
-        score: result.score,
-      })),
-    );
+      console.log("[search_documents_semantic:success]", {
+        callId,
+        query,
+        customerId,
+        documentType,
+        scope,
+        resultCount: results.length,
+      });
 
-    const output = {
-      results,
-    };
+      console.table(
+        results.map((result) => ({
+          file: result.file,
+          documentType: result.documentType,
+          customerId: result.customerId,
+          score: result.score,
+        })),
+      );
 
-    addEvalContext("search_documents_semantic", output, {
-      query,
-      customerId,
-      documentType,
-      scope,
-    });
+      const output = {
+        results,
+      };
 
-    return output;
+      addEvalContext("search_documents_semantic", output, {
+        query,
+        customerId,
+        documentType,
+        scope,
+      });
+
+      return output;
+    } catch (error) {
+      console.error("[search_documents_semantic:error]", {
+        callId,
+        query,
+        customerId,
+        documentType,
+        scope,
+        error,
+      });
+
+      throw error;
+    }
   },
 });
