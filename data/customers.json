@@ -17,6 +17,7 @@
     "id": "cust-002",
     "name": "北斗リテール株式会社",
     "shortName": "北斗リテール",
+    "aliases": ["北斗商事"],
     "industry": "小売",
     "plan": "Business",
     "status": "active",
