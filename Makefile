@@ -12,4 +12,5 @@ test:
 check:
 	pnpm fmt
 	pnpm lint
+	pnpm typecheck
 	pnpm test

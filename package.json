@@ -9,6 +9,7 @@
     "lint": "eslint",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "rag:index": "tsx --env-file=.env.local scripts/build-vector-index.ts",
@@ -19,7 +20,6 @@
     "rag:evaluate-monthly-report": "tsx --env-file=.env.local scripts/evaluate-monthly-report.ts",
     "guardrail:evaluate": "tsx --env-file=.env.local scripts/evaluate-guardrails.ts",
     "conversation:evaluate": "tsx --env-file=.env.local scripts/evaluate-conversation-state.ts",
-    "multi-agent:test": "tsx --env-file=.env.local scripts/test-multi-agent.ts",
     "multi-agent:evaluate": "tsx --env-file=.env.local scripts/evaluate-multi-agent.ts"
   },
   "dependencies": {

@@ -4,10 +4,10 @@ import { getCustomerTool } from '@/tools/get-customer'
 import { getProjectTool } from '@/tools/get-project'
 import { getContractTool } from '@/tools/get-contract'
 import { getIncidentsTool } from '@/tools/get-incidents'
-import { searchDocumentsTool } from '@/tools/search-documents'
 import { searchDocumentsSemanticTool } from '@/tools/search-documents-semantic'
 import { getApiUsage } from '@/tools/get-api-usage'
 import { createApiLimitRequest } from '@/tools/create-api-limit-request'
+import { projectAssistantOutput } from '@/agents/schemas/project-assistant-output'
 
 export const projectAgent = new Agent({
   name: 'Project Assistant',
@@ -168,9 +168,9 @@ pendingAction を返した時点では、
     getProjectTool,
     getContractTool,
     getIncidentsTool,
-    searchDocumentsTool,
     searchDocumentsSemanticTool,
     getApiUsage,
     createApiLimitRequest,
   ],
+  outputType: projectAssistantOutput,
 })
