@@ -1,39 +1,17 @@
-import { Agent } from "@openai/agents";
-import { z } from "zod";
+import { Agent } from '@openai/agents'
 
-import { getCustomerTool } from "@/tools/get-customer";
-import { getProjectTool } from "@/tools/get-project";
-import { getContractTool } from "@/tools/get-contract";
-import { getIncidentsTool } from "@/tools/get-incidents";
-import { searchDocumentsTool } from "@/tools/search-documents";
-import { searchDocumentsSemanticTool } from "@/tools/search-documents-semantic";
-import { getApiUsage } from "@/tools/get-api-usage";
-import { createApiLimitRequest } from "@/tools/create-api-limit-request";
-
-const pendingActionSchema = z.object({
-  type: z.literal("api_limit_request"),
-  customerId: z.string(),
-  customerName: z.string(),
-  requestedLimit: z.number(),
-  reason: z.string(),
-});
-
-export const projectAssistantOutput = z.object({
-  message: z
-    .string()
-    .describe("ユーザーに表示する回答本文。Markdown形式で記述する"),
-
-  sources: z
-    .array(z.string())
-    .describe(
-      "回答の根拠として実際に使用した社内文書のfile名。社内文書を使用していない場合は空配列",
-    ),
-  pendingAction: pendingActionSchema.nullable(),
-});
+import { getCustomerTool } from '@/tools/get-customer'
+import { getProjectTool } from '@/tools/get-project'
+import { getContractTool } from '@/tools/get-contract'
+import { getIncidentsTool } from '@/tools/get-incidents'
+import { searchDocumentsSemanticTool } from '@/tools/search-documents-semantic'
+import { getApiUsage } from '@/tools/get-api-usage'
+import { createApiLimitRequest } from '@/tools/create-api-limit-request'
+import { projectAssistantOutput } from '@/agents/schemas/project-assistant-output'
 
 export const projectAgent = new Agent({
-  name: "Project Assistant",
-  model: "gpt-5.6-luna",
+  name: 'Project Assistant',
+  model: 'gpt-5.6-luna',
 
   instructions: `
 ## Instruction
@@ -80,6 +58,14 @@ export const projectAgent = new Agent({
   顧客固有情報を取得するToolを使用してはいけません。
 - 特定顧客の質問では、
   他の顧客の文書を回答根拠に使用してはいけません。
+- Conversation State に確認済み顧客が存在せず、
+  ユーザーの質問にも顧客名が含まれていない場合は、
+  顧客固有情報を取得するToolを使用してはいけません。
+- その場合は、対象の顧客名を確認する質問をしてください。
+- 顧客が未確認の状態では、
+  get_contract、get_project、get_incidents、
+  get_api_usage、および customer scope の文書検索を
+  実行してはいけません。
 ### Context / Grounding Guardrails
 - ユーザーの質問に曖昧さがあり、
   複数の解釈が可能な場合は、
@@ -190,11 +176,9 @@ pendingAction を返した時点では、
     getProjectTool,
     getContractTool,
     getIncidentsTool,
-    searchDocumentsTool,
     searchDocumentsSemanticTool,
     getApiUsage,
     createApiLimitRequest,
   ],
-
   outputType: projectAssistantOutput,
-});
+})

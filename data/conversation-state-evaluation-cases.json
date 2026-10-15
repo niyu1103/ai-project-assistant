@@ -1,0 +1,82 @@
+[
+  {
+    "id": "customer-and-topic-continuation",
+    "turns": [
+      {
+        "message": "青空テックの契約内容を教えて",
+        "expected": {
+          "customerId": "cust-001",
+          "currentTopic": "contract",
+          "requiredTools": ["get_customer", "get_contract"]
+        }
+      },
+      {
+        "message": "じゃあ更新期限は？",
+        "expected": {
+          "customerId": "cust-001",
+          "currentTopic": "contract",
+          "requiredTools": ["get_contract"],
+          "forbiddenTools": ["get_customer"]
+        }
+      },
+      {
+        "message": "じゃあ北斗リテールは？",
+        "expected": {
+          "customerId": "cust-002",
+          "currentTopic": "contract",
+          "requiredTools": ["get_customer", "get_contract"]
+        }
+      },
+      {
+        "message": "じゃあプロジェクト状況は？",
+        "expected": {
+          "customerId": "cust-002",
+          "currentTopic": "project",
+          "requiredTools": ["get_project"],
+          "forbiddenTools": ["get_customer"]
+        }
+      },
+      {
+        "message": "じゃあ障害は？",
+        "expected": {
+          "customerId": "cust-002",
+          "currentTopic": "incident",
+          "requiredTools": ["get_incidents"],
+          "forbiddenTools": ["get_customer"]
+        }
+      },
+      {
+        "message": "じゃあAPI利用状況は？",
+        "expected": {
+          "customerId": "cust-002",
+          "currentTopic": "api_usage",
+          "requiredTools": ["get_api_usage"],
+          "forbiddenTools": ["get_customer"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "new-conversation-reset",
+    "resetBetweenTurns": true,
+    "turns": [
+      {
+        "message": "北斗リテールのAPI利用状況は？",
+        "expected": {
+          "customerId": "cust-002",
+          "currentTopic": "api_usage",
+          "requiredTools": ["get_customer", "get_api_usage"]
+        }
+      },
+      {
+        "resetBefore": true,
+        "message": "プロジェクトは？",
+        "expected": {
+          "customerId": null,
+          "currentTopic": null,
+          "forbiddenTools": ["get_project"]
+        }
+      }
+    ]
+  }
+]

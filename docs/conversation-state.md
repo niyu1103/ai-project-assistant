@@ -224,17 +224,39 @@ requestedCustomerId = cust-002
 Topic の切り替え             ✅
 省略表現への対応             ✅
 conversationId による状態維持 ✅
-新しい会話でのリセット       ✅
+新しい会話でreset      ✅
 Hard Guardrail との併用       ✅
+```
+
+## Conversation State Eval
+
+Conversation State の複数ターン動作を自動評価します。
+
+確認項目:
+
+- 顧客継続
+- 顧客切り替え
+- Topic 切り替え
+- 不要な `get_customer` 再実行の抑制
+- 「新しい会話」で State がリセットされること
+
+```text
+顧客継続             ✅
+顧客切り替え         ✅
+Topic切り替え        ✅
+不要なget_customer抑制 ✅
+新しい会話でreset     ✅
+```
+
+```
+pnpm conversation:evaluate
 ```
 
 ## Next Steps
 
 次回候補:
 
-1. Conversation State Eval の追加
-2. 顧客継続 / 顧客切り替え / Topic切り替えの自動テスト
-3. 新しい会話で State がリセットされることの Eval
-4. `Map` から Redis / DB などへの永続化検討
-5. State の TTL / 有効期限
-6. 複数ブラウザ・複数サーバーインスタンスへの対応
+1. `Map` から Redis / DB などへの永続化検討
+2. State の TTL / 有効期限
+3. 複数ブラウザ・複数サーバーインスタンスへの対応
+4. Conversation State Eval ケースの拡充

@@ -1,27 +1,35 @@
-import fs from "node:fs";
-import path from "node:path";
-import { File } from "node:buffer";
-import evaluationCases from "@/data/monthly-report-evaluation-cases.json";
-import { run } from "@openai/agents";
-import { projectAgent } from "@/agents/project-agent";
-import { extractMonthlyReport } from "@/lib/extract-monthly-report";
-import OpenAI from "openai";
+import fs from 'node:fs'
+import path from 'node:path'
+import { File } from 'node:buffer'
+import evaluationCases from '@/data/monthly-report-evaluation-cases.json'
+import { run } from '@openai/agents'
+import { projectAgent } from '@/agents/project-agent'
+import { extractMonthlyReport } from '@/lib/extract-monthly-report'
+import OpenAI from 'openai'
+import type { AgentContext } from '@/lib/agent-context'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});
+})
+
+type MonthlyReportContext = {
+  customerVerified?: boolean
+  customerId?: string | null
+  customerName?: string | null
+  [key: string]: unknown
+}
 
 type EvaluationResult = {
-  input: string;
-  passed: boolean;
-  differences: string[];
-};
+  input: string
+  passed: boolean
+  differences: string[]
+}
 
 async function evaluateGroundedness(
   reportContext: unknown,
   toolOutputs: {
-    name: string;
-    output: string;
+    name: string
+    output: string
   }[],
   answer: string,
 ) {
@@ -37,14 +45,14 @@ ${toolOutputs
 ${tool.output}
 `,
   )
-  .join("\n")}
-`;
+  .join('\n')}
+`
 
   const response = await openai.responses.create({
-    model: "gpt-5.6",
+    model: 'gpt-5.6',
     input: [
       {
-        role: "system",
+        role: 'system',
         content: `
 あなたはAI回答のGroundednessを評価するJudgeです。
 
@@ -65,7 +73,7 @@ ${tool.output}
 `,
       },
       {
-        role: "user",
+        role: 'user',
         content: `
 ## Grounding Context
 ${groundingContext}
@@ -77,52 +85,52 @@ ${answer}
     ],
     text: {
       format: {
-        type: "json_schema",
-        name: "groundedness_evaluation",
+        type: 'json_schema',
+        name: 'groundedness_evaluation',
         schema: {
-          type: "object",
+          type: 'object',
           additionalProperties: false,
           properties: {
             grounded: {
-              type: "boolean",
+              type: 'boolean',
             },
             unsupportedClaims: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "string",
+                type: 'string',
               },
             },
             reason: {
-              type: "string",
+              type: 'string',
             },
           },
-          required: ["grounded", "unsupportedClaims", "reason"],
+          required: ['grounded', 'unsupportedClaims', 'reason'],
         },
       },
     },
-  });
+  })
 
   return JSON.parse(response.output_text) as {
-    grounded: boolean;
-    unsupportedClaims: string[];
-    reason: string;
-  };
+    grounded: boolean
+    unsupportedClaims: string[]
+    reason: string
+  }
 }
 
 function createFile(filePath: string, mimeType: string) {
-  const buffer = fs.readFileSync(filePath);
+  const buffer = fs.readFileSync(filePath)
 
   return new File([buffer], path.basename(filePath), {
     type: mimeType,
-  });
+  })
 }
 
 function compareValues(
   actual: unknown,
   expected: unknown,
-  currentPath = "",
+  currentPath = '',
 ): string[] {
-  const differences: string[] = [];
+  const differences: string[] = []
 
   if (
     typeof actual !== typeof expected ||
@@ -132,25 +140,25 @@ function compareValues(
     if (JSON.stringify(actual) !== JSON.stringify(expected)) {
       differences.push(
         `${currentPath}: expected=${JSON.stringify(expected)} actual=${JSON.stringify(actual)}`,
-      );
+      )
     }
 
-    return differences;
+    return differences
   }
 
   if (Array.isArray(expected)) {
     if (!Array.isArray(actual)) {
       differences.push(
         `${currentPath}: expected array, actual=${JSON.stringify(actual)}`,
-      );
+      )
 
-      return differences;
+      return differences
     }
 
     if (actual.length !== expected.length) {
       differences.push(
         `${currentPath}.length: expected=${expected.length} actual=${actual.length}`,
-      );
+      )
     }
 
     expected.forEach((expectedItem, index) => {
@@ -160,13 +168,13 @@ function compareValues(
           expectedItem,
           `${currentPath}[${index}]`,
         ),
-      );
-    });
+      )
+    })
 
-    return differences;
+    return differences
   }
 
-  if (typeof expected === "object" && typeof actual === "object") {
+  if (typeof expected === 'object' && typeof actual === 'object') {
     for (const [key, expectedValue] of Object.entries(expected)) {
       differences.push(
         ...compareValues(
@@ -174,48 +182,48 @@ function compareValues(
           expectedValue,
           currentPath ? `${currentPath}.${key}` : key,
         ),
-      );
+      )
     }
 
-    return differences;
+    return differences
   }
 
   if (actual !== expected) {
     differences.push(
       `${currentPath}: expected=${JSON.stringify(expected)} actual=${JSON.stringify(actual)}`,
-    );
+    )
   }
 
-  return differences;
+  return differences
 }
 
 function evaluateAnswer(
   answer: string,
   expectedChecks: {
-    name: string;
-    allOf: string[];
+    name: string
+    allOf: string[]
   }[],
 ) {
   const checks = expectedChecks.map((check) => {
     const missingKeywords = check.allOf.filter(
       (keyword) => !answer.includes(keyword),
-    );
+    )
 
     return {
       name: check.name,
       passed: missingKeywords.length === 0,
       missingKeywords,
-    };
-  });
+    }
+  })
 
   return {
     passed: checks.every((check) => check.passed),
     checks,
-  };
+  }
 }
 
 async function evaluateToolSelection(
-  reportContext: unknown,
+  reportContext: MonthlyReportContext,
   expectedTools: string[],
 ) {
   const input = `
@@ -231,40 +239,78 @@ ${JSON.stringify(reportContext, null, 2)}
 
 この月次報告書の情報を事実として使用してください。
 必要に応じてToolや社内文書検索を使用してください。
-`;
+`
 
-  const result = await run(projectAgent, input);
-  const answer = result.finalOutput?.message ?? "";
+  const verifiedCustomerId =
+    reportContext.customerVerified === true
+      ? (reportContext.customerId ?? null)
+      : null
+
+  const context: AgentContext = {
+    verifiedCustomerId,
+
+    conversationState: {
+      customerId: verifiedCustomerId,
+      customerName:
+        reportContext?.customerVerified === true
+          ? (reportContext.customerName ?? null)
+          : null,
+      currentTopic: null,
+    },
+
+    eval: {
+      failTools: [],
+    },
+  }
+  const result = await run(projectAgent, input, {
+    context,
+  })
+  const answer = result.finalOutput?.message ?? ''
   const actualTools = result.newItems
-    .filter((item) => item.type === "tool_call_item")
-    .map((item) => item.rawItem.name);
+    .filter((item) => item.type === 'tool_call_item')
+    .map((item) => {
+      const rawItem = item.rawItem
+
+      if (rawItem.type !== 'function_call') {
+        return null
+      }
+
+      return rawItem.name
+    })
+    .filter((name): name is string => name !== null)
 
   const missingTools = expectedTools.filter(
     (tool) => !actualTools.includes(tool),
-  );
+  )
 
   const unexpectedTools = actualTools.filter(
     (tool) => !expectedTools.includes(tool),
-  );
+  )
 
   const toolOutputs = result.newItems
-    .filter((item) => item.type === "tool_call_output_item")
+    .filter((item) => item.type === 'tool_call_output_item')
     .map((item) => {
-      const rawItem = item.rawItem;
-
+      const rawItem = item.rawItem
+      const output = rawItem.output
       if (
-        rawItem.type !== "function_call_result" ||
-        rawItem.output.type !== "text"
+        rawItem.type !== 'function_call_result' ||
+        typeof output !== 'object' ||
+        output === null ||
+        Array.isArray(output) ||
+        !('type' in output) ||
+        output.type !== 'text' ||
+        !('text' in output) ||
+        typeof output.text !== 'string'
       ) {
-        return null;
+        return null
       }
 
       return {
         name: rawItem.name,
-        output: rawItem.output.text,
-      };
+        output: output.text,
+      }
     })
-    .filter((item) => item !== null);
+    .filter((item) => item !== null)
 
   return {
     answer,
@@ -273,7 +319,7 @@ ${JSON.stringify(reportContext, null, 2)}
     missingTools,
     unexpectedTools,
     passed: missingTools.length === 0 && unexpectedTools.length === 0,
-  };
+  }
 }
 
 async function evaluateFile(
@@ -281,108 +327,108 @@ async function evaluateFile(
   mimeType: string,
   expected: unknown,
 ): Promise<EvaluationResult> {
-  const file = createFile(filePath, mimeType);
+  const file = createFile(filePath, mimeType)
 
-  const actual = await extractMonthlyReport(file);
+  const actual = await extractMonthlyReport(file)
 
-  const differences = compareValues(actual, expected);
+  const differences = compareValues(actual, expected)
 
   return {
     input: path.basename(filePath),
     passed: differences.length === 0,
     differences,
-  };
+  }
 }
 
 async function main() {
-  const evaluationCase = evaluationCases[0];
+  const evaluationCase = evaluationCases[0]
 
   const pdfPath = path.resolve(
-    "data/evaluation/monthly-report/aosora_monthly_report_2026_09.pdf",
-  );
+    'data/evaluation/monthly-report/aosora_monthly_report_2026_09.pdf',
+  )
 
   const pngPath = path.resolve(
-    "data/evaluation/monthly-report/aosora_monthly_report_2026_09.png",
-  );
+    'data/evaluation/monthly-report/aosora_monthly_report_2026_09.png',
+  )
 
   const pdfResult = await evaluateFile(
     pdfPath,
-    "application/pdf",
+    'application/pdf',
     evaluationCase.expectedExtraction,
-  );
+  )
 
   const pngResult = await evaluateFile(
     pngPath,
-    "image/png",
+    'image/png',
     evaluationCase.expectedExtraction,
-  );
+  )
 
-  console.log("\nExtraction Eval\n");
+  console.log('\nExtraction Eval\n')
 
   for (const result of [pdfResult, pngResult]) {
-    console.log(`${result.input}: ${result.passed ? "PASS" : "FAIL"}`);
+    console.log(`${result.input}: ${result.passed ? 'PASS' : 'FAIL'}`)
 
     for (const difference of result.differences) {
-      console.log(`  - ${difference}`);
+      console.log(`  - ${difference}`)
     }
   }
 
-  const pdfFile = createFile(pdfPath, "application/pdf");
+  const pdfFile = createFile(pdfPath, 'application/pdf')
 
-  const pngFile = createFile(pngPath, "image/png");
+  const pngFile = createFile(pngPath, 'image/png')
 
-  const pdfExtraction = await extractMonthlyReport(pdfFile);
-  const pngExtraction = await extractMonthlyReport(pngFile);
+  const pdfExtraction = await extractMonthlyReport(pdfFile)
+  const pngExtraction = await extractMonthlyReport(pngFile)
   const pdfToolResult = await evaluateToolSelection(
     pdfExtraction,
     evaluationCase.expectedTools,
-  );
+  )
 
   const pngToolResult = await evaluateToolSelection(
     pngExtraction,
     evaluationCase.expectedTools,
-  );
+  )
 
-  console.log("\nTool Selection Eval\n");
+  console.log('\nTool Selection Eval\n')
 
   for (const [label, result] of [
-    ["PDF", pdfToolResult],
-    ["PNG", pngToolResult],
+    ['PDF', pdfToolResult],
+    ['PNG', pngToolResult],
   ] as const) {
-    console.log(`${label}: ${result.passed ? "PASS" : "FAIL"}`);
-    console.log(`  actual: ${result.actualTools.join(", ")}`);
+    console.log(`${label}: ${result.passed ? 'PASS' : 'FAIL'}`)
+    console.log(`  actual: ${result.actualTools.join(', ')}`)
 
     if (result.missingTools.length > 0) {
-      console.log(`  missing: ${result.missingTools.join(", ")}`);
+      console.log(`  missing: ${result.missingTools.join(', ')}`)
     }
 
     if (result.unexpectedTools.length > 0) {
-      console.log(`  unexpected: ${result.unexpectedTools.join(", ")}`);
+      console.log(`  unexpected: ${result.unexpectedTools.join(', ')}`)
     }
   }
 
   const pdfAnswerResult = evaluateAnswer(
     pdfToolResult.answer,
     evaluationCase.expectedAnswerChecks,
-  );
+  )
 
   const pngAnswerResult = evaluateAnswer(
     pngToolResult.answer,
     evaluationCase.expectedAnswerChecks,
-  );
-  console.log("\nAnswer Eval\n");
+  )
+  console.log('\nAnswer Eval\n')
 
   for (const [label, result] of [
-    ["PDF", pdfAnswerResult],
-    ["PNG", pngAnswerResult],
+    ['PDF', pdfAnswerResult],
+    ['PNG', pngAnswerResult],
   ] as const) {
-    console.log(`${label}: ${result.passed ? "PASS" : "FAIL"}`);
+    console.log(`${label}: ${result.passed ? 'PASS' : 'FAIL'}`)
 
     for (const check of result.checks) {
-      console.log(`  ${check.passed ? "✅" : "❌"} ${check.name}`);
+      console.log(`  ${check.passed ? '✅' : '❌'} ${check.name}`)
 
       if (!check.passed) {
-        console.log(`     missing: ${check.missingKeywords.join(", ")}`);
+        console.log(`     missing: ${check.missingKeywords.join(', ')}`)
       }
     }
   }
@@ -391,7 +437,7 @@ async function main() {
     pdfExtraction,
     pdfToolResult.toolOutputs,
     pdfToolResult.answer,
-  );
+  )
   // const fakeAnswer =
   //   pdfToolResult.answer +
   //   '\nSSO証明書の更新は2026年10月15日までに必ず完了します。'
@@ -406,28 +452,28 @@ async function main() {
     pngExtraction,
     pngToolResult.toolOutputs,
     pngToolResult.answer,
-  );
-  console.log("\nGroundedness Eval\n");
+  )
+  console.log('\nGroundedness Eval\n')
 
   for (const [label, result] of [
-    ["PDF", pdfGroundedness],
-    ["PNG", pngGroundedness],
+    ['PDF', pdfGroundedness],
+    ['PNG', pngGroundedness],
   ] as const) {
-    console.log(`${label}: ${result.grounded ? "PASS" : "FAIL"}`);
+    console.log(`${label}: ${result.grounded ? 'PASS' : 'FAIL'}`)
 
-    console.log(`  reason: ${result.reason}`);
+    console.log(`  reason: ${result.reason}`)
 
     if (result.unsupportedClaims.length > 0) {
-      console.log("  unsupported claims:");
+      console.log('  unsupported claims:')
 
       for (const claim of result.unsupportedClaims) {
-        console.log(`    - ${claim}`);
+        console.log(`    - ${claim}`)
       }
     }
   }
 }
 
 main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+  console.error(error)
+  process.exit(1)
+})
