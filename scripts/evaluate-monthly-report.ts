@@ -6,10 +6,18 @@ import { run } from '@openai/agents'
 import { projectAgent } from '@/agents/project-agent'
 import { extractMonthlyReport } from '@/lib/extract-monthly-report'
 import OpenAI from 'openai'
+import type { AgentContext } from '@/lib/agent-context'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
+
+type MonthlyReportContext = {
+  customerVerified?: boolean
+  customerId?: string | null
+  customerName?: string | null
+  [key: string]: unknown
+}
 
 type EvaluationResult = {
   input: string
@@ -215,7 +223,7 @@ function evaluateAnswer(
 }
 
 async function evaluateToolSelection(
-  reportContext: unknown,
+  reportContext: MonthlyReportContext,
   expectedTools: string[],
 ) {
   const input = `
@@ -233,7 +241,30 @@ ${JSON.stringify(reportContext, null, 2)}
 必要に応じてToolや社内文書検索を使用してください。
 `
 
-  const result = await run(projectAgent, input)
+  const verifiedCustomerId =
+    reportContext.customerVerified === true
+      ? (reportContext.customerId ?? null)
+      : null
+
+  const context: AgentContext = {
+    verifiedCustomerId,
+
+    conversationState: {
+      customerId: verifiedCustomerId,
+      customerName:
+        reportContext?.customerVerified === true
+          ? (reportContext.customerName ?? null)
+          : null,
+      currentTopic: null,
+    },
+
+    eval: {
+      failTools: [],
+    },
+  }
+  const result = await run(projectAgent, input, {
+    context,
+  })
   const answer = result.finalOutput?.message ?? ''
   const actualTools = result.newItems
     .filter((item) => item.type === 'tool_call_item')

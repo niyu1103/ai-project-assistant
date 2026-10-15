@@ -165,7 +165,7 @@ async function main() {
       },
 
       eval: {
-        failTools: [],
+        failTools: testCase.injectFailureTools ?? [],
       },
     }
 

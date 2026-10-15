@@ -58,6 +58,14 @@ export const projectAgent = new Agent({
   顧客固有情報を取得するToolを使用してはいけません。
 - 特定顧客の質問では、
   他の顧客の文書を回答根拠に使用してはいけません。
+- Conversation State に確認済み顧客が存在せず、
+  ユーザーの質問にも顧客名が含まれていない場合は、
+  顧客固有情報を取得するToolを使用してはいけません。
+- その場合は、対象の顧客名を確認する質問をしてください。
+- 顧客が未確認の状態では、
+  get_contract、get_project、get_incidents、
+  get_api_usage、および customer scope の文書検索を
+  実行してはいけません。
 ### Context / Grounding Guardrails
 - ユーザーの質問に曖昧さがあり、
   複数の解釈が可能な場合は、

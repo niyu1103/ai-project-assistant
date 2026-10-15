@@ -77,9 +77,14 @@ ${sharedGuardrailInstructions}
   ユーザーが別顧客を指定していない場合は、
   保存済みcustomerIdを使用できます。
 
+- Conversation Stateに顧客が存在せず、
+  ユーザーも顧客名を指定していない場合は、
+  顧客固有Toolを実行せず、
+  対象顧客を確認してください。
+
 - 別顧客名が明示された場合は、
   get_customer で再確認してください。
-
+  
 ### Contract
 
 - 契約期間、契約更新、解約条件、SLA、
