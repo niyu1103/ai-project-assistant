@@ -17,7 +17,8 @@
     "rag:evaluate:answer": "tsx --env-file=.env.local scripts/evaluate-answer.ts",
     "rag:compare": "tsx --env-file=.env.local scripts/compare-eval.ts",
     "rag:evaluate-monthly-report": "tsx --env-file=.env.local scripts/evaluate-monthly-report.ts",
-    "guardrail:evaluate": "tsx --env-file=.env.local scripts/evaluate-guardrails.ts"
+    "guardrail:evaluate": "tsx --env-file=.env.local scripts/evaluate-guardrails.ts",
+    "conversation:evaluate": "tsx --env-file=.env.local scripts/evaluate-conversation-state.ts"
   },
   "dependencies": {
     "@openai/agents": "^0.18.0",
