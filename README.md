@@ -17,14 +17,27 @@
 
 ## Quick Start
 
+### Install dependencies
+
 ```bash
 pnpm install
+```
+
+### Start Next.js
+
+```bash
 pnpm dev
 ```
 
-```text
-http://localhost:3000
+[http://localhost:3000](http://localhost:3000)
+
+### Start External API
+
+```bash
+python -m uvicorn external-api.main:app --reload --port 8001
 ```
+
+[http://127.0.0.1:8001](http://127.0.0.1:8001)
 
 ## Main Evaluation Commands
 
