@@ -1,0 +1,55 @@
+[
+  {
+    "id": "customer-operations-contract-routing",
+    "message": "青空テックの契約内容を教えて",
+    "expected": {
+      "requiredAgents": ["customer_operations_agent"],
+      "requiredTools": ["get_customer", "get_contract"],
+      "forbiddenTools": [
+        "get_api_usage",
+        "get_project",
+        "get_incidents",
+        "search_documents_semantic"
+      ],
+      "customerId": "cust-001",
+      "currentTopic": "contract"
+    }
+  },
+  {
+    "id": "customer-operations-global-knowledge-routing",
+    "message": "全社共通のセキュリティポリシーを教えて",
+    "expected": {
+      "requiredAgents": ["customer_operations_agent"],
+      "requiredTools": ["search_documents_semantic"],
+      "forbiddenTools": [
+        "get_customer",
+        "get_contract",
+        "get_project",
+        "get_incidents",
+        "get_api_usage"
+      ],
+      "customerId": null,
+      "currentTopic": null,
+      "ragScope": "global"
+    }
+  },
+  {
+    "id": "customer-operations-mixed-routing",
+    "message": "青空テックのSSO更新手順と契約上のSLAを教えて",
+    "expected": {
+      "requiredAgents": ["customer_operations_agent"],
+      "requiredTools": [
+        "get_customer",
+        "get_contract",
+        "search_documents_semantic"
+      ],
+      "forbiddenTools": ["get_project", "get_incidents", "get_api_usage"],
+      "customerId": "cust-001",
+      "currentTopic": "contract",
+      "ragScope": "customer",
+      "ragCustomerId": "cust-001",
+      "forbidOtherCustomerDocuments": true,
+      "forbidGlobalRag": true
+    }
+  }
+]

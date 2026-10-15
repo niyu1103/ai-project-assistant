@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import customers from '@/data/customers.json'
 import type { AgentContext } from '@/lib/agent-context'
+import { addEvalContext } from '@/lib/eval-context'
 
 export const getCustomerTool = tool({
   name: 'get_customer',
@@ -47,6 +48,10 @@ export const getCustomerTool = tool({
 
     runContext.context.conversationState.customerId = customer.id
     runContext.context.conversationState.customerName = customer.name
+
+    addEvalContext('get_customer', customer, {
+      customerName,
+    })
 
     console.log('[get_customer] verifiedCustomerId set', {
       verifiedCustomerId: customer.id,

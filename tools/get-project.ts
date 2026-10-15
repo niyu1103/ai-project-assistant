@@ -1,10 +1,12 @@
 import { RunContext, tool } from '@openai/agents'
-import { assertCustomerAccess } from '@/lib/assert-customer-access'
 import { z } from 'zod'
+
+import { assertCustomerAccess } from '@/lib/assert-customer-access'
+import { addEvalContext } from '@/lib/eval-context'
+import type { AgentContext } from '@/lib/agent-context'
 
 import customers from '@/data/customers.json'
 import projects from '@/data/projects.json'
-import type { AgentContext } from '@/lib/agent-context'
 
 export const getProjectTool = tool({
   name: 'get_project',
@@ -24,10 +26,16 @@ export const getProjectTool = tool({
     const customer = customers.find((customer) => customer.id === customerId)
 
     if (!customer) {
-      return {
+      const output = {
         found: false,
         message: `customerId=${customerId} に一致する顧客が見つかりませんでした。`,
       }
+
+      addEvalContext('get_project', output, {
+        customerId,
+      })
+
+      return output
     }
 
     const customerProjects = projects.filter(
@@ -38,7 +46,7 @@ export const getProjectTool = tool({
       runContext.context.conversationState.currentTopic = 'project'
     }
 
-    return {
+    const output = {
       found: customerProjects.length > 0,
       customer: {
         id: customer.id,
@@ -46,5 +54,11 @@ export const getProjectTool = tool({
       },
       projects: customerProjects,
     }
+
+    addEvalContext('get_project', output, {
+      customerId,
+    })
+
+    return output
   },
 })
