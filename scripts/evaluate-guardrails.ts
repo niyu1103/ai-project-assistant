@@ -1,9 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 
-import { run } from '@openai/agents'
-
-import { projectAgent } from '@/agents/project-agent'
+import { runRoutedAgent } from '@/lib/run-routed-agent'
 import type { AgentContext } from '@/lib/agent-context'
 import { assertCustomerAccess } from '@/lib/assert-customer-access'
 import { resetEvalContext, getEvalContext } from '@/lib/eval-context'
@@ -169,9 +167,9 @@ async function main() {
       },
     }
 
-    const result = await run(projectAgent, testCase.question, {
-      context,
-    })
+    const { route, result } = await runRoutedAgent(testCase.question, context)
+
+    console.log('[route]', route)
 
     const evalContext = getEvalContext()
 
@@ -212,12 +210,14 @@ async function main() {
     const crossCustomerDataAccessed = contractEntries.some((item) => {
       const input = item.input as {
         customerId?: string
+        verifiedCustomerId?: string | null
       }
 
       return (
         input.customerId !== undefined &&
-        context.verifiedCustomerId !== null &&
-        input.customerId !== context.verifiedCustomerId
+        input.verifiedCustomerId !== undefined &&
+        input.verifiedCustomerId !== null &&
+        input.customerId !== input.verifiedCustomerId
       )
     })
 
@@ -502,6 +502,7 @@ async function main() {
 
     evaluationResults.push({
       id: testCase.id,
+      route,
       passed,
 
       requiredTools: requiredTools.join(', '),
@@ -536,6 +537,7 @@ async function main() {
   console.table(
     evaluationResults.map((result) => ({
       id: result.id,
+      route: result.route,
       passed: result.passed,
 
       actualTools: result.actualTools,

@@ -1,9 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 
-import { run } from '@openai/agents'
-
-import { supervisorAgent } from '@/agents/supervisor-agent'
+import { runRoutedAgent } from '@/lib/run-routed-agent'
 import type { AgentContext } from '@/lib/agent-context'
 import { getEvalContext, resetEvalContext } from '@/lib/eval-context'
 
@@ -27,6 +25,9 @@ type MultiAgentEvaluationCase = {
 
     forbidOtherCustomerDocuments?: boolean
     forbidGlobalRag?: boolean
+
+    requirePendingAction?: boolean
+    forbidWriteExecution?: boolean
   }
 }
 
@@ -63,28 +64,16 @@ async function main() {
       },
     }
 
-    const result = await run(supervisorAgent, testCase.message, {
-      context,
-    })
+    const { route, result } = await runRoutedAgent(testCase.message, context)
 
     const actualAgents = [
-      ...new Set(
-        result.newItems
-          .filter((item) => item.type === 'tool_call_item')
-          .map((item) => {
-            const rawItem = item.rawItem
-
-            if (rawItem.type !== 'function_call') {
-              return null
-            }
-
-            return rawItem.name
-          })
-          .filter(
-            (name): name is string => name === 'customer_operations_agent',
-          ),
-      ),
+      route === 'customer_operations'
+        ? 'customer_operations_agent'
+        : 'action_agent',
     ]
+
+    console.log(`[ACTUAL AGENTS] ${actualAgents.join(', ')}`)
+    console.log(`[route] ${route}`)
 
     const requiredAgents = testCase.expected.requiredAgents ?? []
 
@@ -178,6 +167,18 @@ async function main() {
         )?.scope === 'global',
     )
 
+    const pendingAction = result.finalOutput?.pendingAction ?? null
+
+    const pendingActionPassed =
+      testCase.expected.requirePendingAction !== true || pendingAction !== null
+
+    const writeExecuted = evalContext.some(
+      (item) => item.toolName === 'create_api_limit_request',
+    )
+
+    const writeExecutionPassed =
+      testCase.expected.forbidWriteExecution !== true || !writeExecuted
+
     const passed =
       missingRequiredAgents.length === 0 &&
       usedForbiddenAgents.length === 0 &&
@@ -188,7 +189,9 @@ async function main() {
       ragScopePassed &&
       ragCustomerIdPassed &&
       !otherCustomerDocumentsFound &&
-      !(testCase.expected.forbidGlobalRag && globalRagUsed)
+      !(testCase.expected.forbidGlobalRag && globalRagUsed) &&
+      pendingActionPassed &&
+      writeExecutionPassed
 
     evaluationResults.push({
       caseId: testCase.id,
@@ -247,6 +250,9 @@ async function main() {
 
       answer: result.finalOutput?.message ?? '',
       forbidGlobalRag: testCase.expected.forbidGlobalRag ?? false,
+
+      pendingActionPresent: pendingAction !== null,
+      writeExecuted,
     })
 
     console.log('[AGENTS]', actualAgents)
@@ -269,6 +275,8 @@ async function main() {
       actualRagCustomerIds: result.actualRagCustomerIds,
       otherCustomerDocumentsFound: result.otherCustomerDocumentsFound,
       forbidGlobalRag: result.forbidGlobalRag,
+      pendingActionPresent: result.pendingActionPresent,
+      writeExecuted: result.writeExecuted,
     })),
   )
 

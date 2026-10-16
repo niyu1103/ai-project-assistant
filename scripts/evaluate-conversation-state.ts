@@ -1,9 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 
-import { run } from '@openai/agents'
-
-import { projectAgent } from '@/agents/project-agent'
+import { runRoutedAgent } from '@/lib/run-routed-agent'
 import type { AgentContext } from '@/lib/agent-context'
 
 type ConversationStateEvaluationCase = {
@@ -86,9 +84,9 @@ ${conversationContext}
 ${turn.message}
 `
 
-      const result = await run(projectAgent, agentInput, {
-        context,
-      })
+      const { route, result } = await runRoutedAgent(agentInput, context)
+
+      console.log('[route]', route)
 
       console.log('[STATE]', context.conversationState)
 

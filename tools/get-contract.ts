@@ -62,6 +62,7 @@ export const getContractTool = tool({
 
     addEvalContext('get_contract', output, {
       customerId,
+      verifiedCustomerId: runContext?.context.verifiedCustomerId ?? null,
     })
 
     return output

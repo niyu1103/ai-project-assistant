@@ -51,5 +51,29 @@
       "forbidOtherCustomerDocuments": true,
       "forbidGlobalRag": true
     }
+  },
+  {
+    "id": "customer-operations-api-usage-routing",
+    "message": "青空テックのAPI利用状況を教えて",
+    "expected": {
+      "requiredAgents": ["customer_operations_agent"],
+      "forbiddenAgents": ["action_agent"],
+      "requiredTools": ["get_customer", "get_api_usage"],
+      "customerId": "cust-001",
+      "currentTopic": "api_usage"
+    }
+  },
+  {
+    "id": "action-api-limit-routing",
+    "message": "青空テックのAPI上限を200000に上げて",
+    "expected": {
+      "requiredAgents": ["action_agent"],
+      "forbiddenAgents": ["customer_operations_agent"],
+      "requiredTools": ["get_customer", "get_api_usage"],
+      "customerId": "cust-001",
+      "currentTopic": "api_usage",
+      "requirePendingAction": true,
+      "forbidWriteExecution": true
+    }
   }
 ]

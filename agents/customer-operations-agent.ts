@@ -12,7 +12,7 @@ import { projectAssistantOutput } from '@/agents/schemas/project-assistant-outpu
 import {
   sharedGuardrailInstructions,
   sharedRulePriority,
-} from '@/agents/shared-instructions'
+} from '@/agents/instructions/shared-instructions'
 
 export const customerOperationsAgent = new Agent({
   name: 'Customer Operations Agent',
@@ -84,7 +84,7 @@ ${sharedGuardrailInstructions}
 
 - 別顧客名が明示された場合は、
   get_customer で再確認してください。
-  
+
 ### Contract
 
 - 契約期間、契約更新、解約条件、SLA、

@@ -3,7 +3,7 @@ import path from 'node:path'
 import { File } from 'node:buffer'
 import evaluationCases from '@/data/monthly-report-evaluation-cases.json'
 import { run } from '@openai/agents'
-import { projectAgent } from '@/agents/project-agent'
+import { monthlyReportAgent } from '@/agents/monthly-report-agent'
 import { extractMonthlyReport } from '@/lib/extract-monthly-report'
 import OpenAI from 'openai'
 import type { AgentContext } from '@/lib/agent-context'
@@ -262,7 +262,7 @@ ${JSON.stringify(reportContext, null, 2)}
       failTools: [],
     },
   }
-  const result = await run(projectAgent, input, {
+  const result = await run(monthlyReportAgent, input, {
     context,
   })
   const answer = result.finalOutput?.message ?? ''

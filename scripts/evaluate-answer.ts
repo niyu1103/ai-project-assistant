@@ -1,200 +1,213 @@
-import fs from "fs/promises";
-import path from "path";
+import fs from 'fs/promises'
+import path from 'path'
 
-import { run } from "@openai/agents";
+import { runRoutedAgent } from '@/lib/run-routed-agent'
+import type { AgentContext } from '@/lib/agent-context'
 
-import { projectAgent } from "../agents/project-agent";
+import { resetEvalContext, getEvalContext } from '../lib/eval-context'
 
-import { resetEvalContext, getEvalContext } from "../lib/eval-context";
-
-import { judgeFact } from "./judgeFact";
-import { judgeGroundedness } from "./judgeGroundedness";
+import { judgeFact } from './judgeFact'
+import { judgeGroundedness } from './judgeGroundedness'
 
 type EvaluationCase = {
-  id: string;
-  query: string;
-  customerName?: string;
-  documentType?: string;
+  id: string
+  query: string
+  customerName?: string
+  documentType?: string
 
-  expectedFiles: string[];
-  expectedFacts?: string[];
+  expectedFiles: string[]
+  expectedFacts?: string[]
 
-  expectedTools?: string[];
-  expectedDocumentTypes?: string[];
-};
+  expectedTools?: string[]
+  expectedDocumentTypes?: string[]
+}
 
 type FactJudgeResult = {
-  fact: string;
-  matched: boolean;
-  reason: string;
-};
+  fact: string
+  matched: boolean
+  reason: string
+}
 
 type EvaluationResult = {
-  id: string;
-  query: string;
+  id: string
+  query: string
 
-  stringMatched: string;
-  stringFactRecall: number;
+  stringMatched: string
+  stringFactRecall: number
 
-  semanticMatched: string;
-  semanticFactRecall: number;
+  semanticMatched: string
+  semanticFactRecall: number
 
-  groundednessScore: number;
-  groundednessReason: string;
+  groundednessScore: number
+  groundednessReason: string
 
-  toolRecall: number | null;
+  toolRecall: number | null
 
-  documentTypeFilterRecall: number | null;
-  retrievedDocumentTypeRecall: number | null;
+  documentTypeFilterRecall: number | null
+  retrievedDocumentTypeRecall: number | null
 
-  answer: string;
-  judgeDetails: string;
+  answer: string
+  judgeDetails: string
 
-  diagnosis: ImprovementDiagnosis;
-};
+  diagnosis: ImprovementDiagnosis
+}
 
 type ImprovementIssue =
-  | "answer_incomplete"
-  | "ungrounded_answer"
-  | "tool_selection"
-  | "document_type_filter"
-  | "retrieval_failure";
+  | 'answer_incomplete'
+  | 'ungrounded_answer'
+  | 'tool_selection'
+  | 'document_type_filter'
+  | 'retrieval_failure'
 
 type ImprovementDiagnosis = {
-  issues: ImprovementIssue[];
-  suggestions: string[];
-};
+  issues: ImprovementIssue[]
+  suggestions: string[]
+}
 
 function diagnoseResult(result: {
-  semanticFactRecall: number;
-  groundednessScore: number;
-  toolRecall: number | null;
-  documentTypeFilterRecall: number | null;
-  retrievedDocumentTypeRecall: number | null;
+  semanticFactRecall: number
+  groundednessScore: number
+  toolRecall: number | null
+  documentTypeFilterRecall: number | null
+  retrievedDocumentTypeRecall: number | null
 }): ImprovementDiagnosis {
-  const issues: ImprovementIssue[] = [];
-  const suggestions: string[] = [];
+  const issues: ImprovementIssue[] = []
+  const suggestions: string[] = []
 
   if (result.semanticFactRecall < 1) {
-    issues.push("answer_incomplete");
+    issues.push('answer_incomplete')
 
     suggestions.push(
-      "回答に必要な事実が不足しているため、質問の各論点を回答前に確認する。",
-    );
+      '回答に必要な事実が不足しているため、質問の各論点を回答前に確認する。',
+    )
   }
 
   if (result.groundednessScore < 1) {
-    issues.push("ungrounded_answer");
+    issues.push('ungrounded_answer')
 
     suggestions.push(
-      "取得したContextにない情報を回答へ追加しない。必要なら追加検索する。",
-    );
+      '取得したContextにない情報を回答へ追加しない。必要なら追加検索する。',
+    )
   }
 
   if (result.toolRecall !== null && result.toolRecall < 1) {
-    issues.push("tool_selection");
+    issues.push('tool_selection')
 
     suggestions.push(
-      "必要なToolをすべて使用できるようAgent instructionsを見直す。",
-    );
+      '必要なToolをすべて使用できるようAgent instructionsを見直す。',
+    )
   }
 
   if (
     result.documentTypeFilterRecall !== null &&
     result.documentTypeFilterRecall < 1
   ) {
-    issues.push("document_type_filter");
+    issues.push('document_type_filter')
 
     suggestions.push(
-      "質問内容から適切なdocumentTypeを判断できるよう検索戦略を改善する。",
-    );
+      '質問内容から適切なdocumentTypeを判断できるよう検索戦略を改善する。',
+    )
   }
 
   if (
     result.retrievedDocumentTypeRecall !== null &&
     result.retrievedDocumentTypeRecall < 1
   ) {
-    issues.push("retrieval_failure");
+    issues.push('retrieval_failure')
 
     suggestions.push(
-      "必要な文書種別を取得できていないため、Filter・検索Query・再検索条件を見直す。",
-    );
+      '必要な文書種別を取得できていないため、Filter・検索Query・再検索条件を見直す。',
+    )
   }
 
   return {
     issues,
     suggestions,
-  };
+  }
 }
 
 async function main() {
   const casesPath = path.join(
     process.cwd(),
-    "data",
-    "rag-evaluation-cases.json",
-  );
+    'data',
+    'rag-evaluation-cases.json',
+  )
 
   const cases = JSON.parse(
-    await fs.readFile(casesPath, "utf-8"),
-  ) as EvaluationCase[];
+    await fs.readFile(casesPath, 'utf-8'),
+  ) as EvaluationCase[]
 
   // Answer Eval対象
   const answerCases = cases.filter(
     (testCase) => testCase.expectedFacts && testCase.expectedFacts.length > 0,
-  );
+  )
 
-  const results: EvaluationResult[] = [];
+  const results: EvaluationResult[] = []
 
   for (const testCase of answerCases) {
-    console.log(`[evaluate] ${testCase.id}`);
+    console.log(`[evaluate] ${testCase.id}`)
 
     // caseごとにTool Resultを初期化
-    resetEvalContext();
+    resetEvalContext()
 
     // Agent実行
-    const result = await run(projectAgent, testCase.query);
+    const agentContext: AgentContext = {
+      verifiedCustomerId: null,
 
-    const message = result.finalOutput?.message ?? "";
+      conversationState: {
+        customerId: null,
+        customerName: null,
+        currentTopic: null,
+      },
 
-    const expectedFacts = testCase.expectedFacts ?? [];
+      eval: {
+        failTools: [],
+      },
+    }
+
+    const { route, result } = await runRoutedAgent(testCase.query, agentContext)
+
+    console.log('[route]', route)
+
+    const message = result.finalOutput?.message ?? ''
+
+    const expectedFacts = testCase.expectedFacts ?? []
 
     // --------------------------------
     // 1. String Match Eval
     // --------------------------------
 
-    const matchedFacts = expectedFacts.filter((fact) => message.includes(fact));
+    const matchedFacts = expectedFacts.filter((fact) => message.includes(fact))
 
     const stringFactRecall =
       expectedFacts.length === 0
         ? 1
-        : matchedFacts.length / expectedFacts.length;
+        : matchedFacts.length / expectedFacts.length
 
     // --------------------------------
     // 2. Semantic Answer Eval
     // --------------------------------
 
-    const judgeResults: FactJudgeResult[] = [];
+    const judgeResults: FactJudgeResult[] = []
 
     for (const fact of expectedFacts) {
-      const judgeResult = await judgeFact(fact, message);
+      const judgeResult = await judgeFact(fact, message)
 
-      judgeResults.push(judgeResult);
+      judgeResults.push(judgeResult)
     }
 
-    const semanticMatchedFacts = judgeResults.filter(
-      (result) => result.matched,
-    );
+    const semanticMatchedFacts = judgeResults.filter((result) => result.matched)
 
     const semanticFactRecall =
       expectedFacts.length === 0
         ? 1
-        : semanticMatchedFacts.length / expectedFacts.length;
+        : semanticMatchedFacts.length / expectedFacts.length
 
     // --------------------------------
     // 3. Tool Context取得
     // --------------------------------
 
-    const toolContexts = getEvalContext();
+    const toolContexts = getEvalContext()
 
     // Groundedness Judgeへ渡すContext
     const context = toolContexts
@@ -207,29 +220,29 @@ ${JSON.stringify(item.input, null, 2)}
 
 Result:
 ${JSON.stringify(item.content, null, 2)}
-        `.trim();
+        `.trim()
       })
-      .join("\n\n---\n\n");
+      .join('\n\n---\n\n')
 
     // --------------------------------
     // 4. Groundedness Eval
     // --------------------------------
 
-    const groundedness = await judgeGroundedness(message, context);
+    const groundedness = await judgeGroundedness(message, context)
 
     // --------------------------------
     // 5. Tool Selection Eval
     // --------------------------------
 
-    const actualTools = [...new Set(toolContexts.map((item) => item.toolName))];
+    const actualTools = [...new Set(toolContexts.map((item) => item.toolName))]
 
-    const expectedTools = testCase.expectedTools;
+    const expectedTools = testCase.expectedTools
 
     const toolRecall =
       expectedTools && expectedTools.length > 0
         ? expectedTools.filter((tool) => actualTools.includes(tool)).length /
           expectedTools.length
-        : null;
+        : null
 
     // --------------------------------
     // 6. DocumentType Filter Eval
@@ -238,28 +251,28 @@ ${JSON.stringify(item.content, null, 2)}
     const actualDocumentTypeFilters = [
       ...new Set(
         toolContexts
-          .filter((item) => item.toolName === "search_documents_semantic")
+          .filter((item) => item.toolName === 'search_documents_semantic')
           .map((item) => {
             const input = item.input as {
-              documentType?: string;
-            };
+              documentType?: string
+            }
 
-            return input.documentType;
+            return input.documentType
           })
           .filter((documentType): documentType is string =>
             Boolean(documentType),
           ),
       ),
-    ];
+    ]
 
-    const expectedDocumentTypes = testCase.expectedDocumentTypes;
+    const expectedDocumentTypes = testCase.expectedDocumentTypes
 
     const documentTypeFilterRecall =
       expectedDocumentTypes && expectedDocumentTypes.length > 0
         ? expectedDocumentTypes.filter((type) =>
             actualDocumentTypeFilters.includes(type),
           ).length / expectedDocumentTypes.length
-        : null;
+        : null
 
     // --------------------------------
     // 7. Retrieved DocumentType Eval
@@ -268,13 +281,13 @@ ${JSON.stringify(item.content, null, 2)}
     const retrievedDocumentTypes = [
       ...new Set(
         toolContexts
-          .filter((item) => item.toolName === "search_documents_semantic")
+          .filter((item) => item.toolName === 'search_documents_semantic')
           .flatMap((item) => {
             const content = item.content as {
               results?: Array<{
-                documentType?: string;
-              }>;
-            };
+                documentType?: string
+              }>
+            }
 
             return (
               content.results
@@ -282,17 +295,17 @@ ${JSON.stringify(item.content, null, 2)}
                 .filter((documentType): documentType is string =>
                   Boolean(documentType),
                 ) ?? []
-            );
+            )
           }),
       ),
-    ];
+    ]
 
     const retrievedDocumentTypeRecall =
       expectedDocumentTypes && expectedDocumentTypes.length > 0
         ? expectedDocumentTypes.filter((type) =>
             retrievedDocumentTypes.includes(type),
           ).length / expectedDocumentTypes.length
-        : null;
+        : null
 
     // --------------------------------
     // 8. Result保存
@@ -304,7 +317,7 @@ ${JSON.stringify(item.content, null, 2)}
       toolRecall,
       documentTypeFilterRecall,
       retrievedDocumentTypeRecall,
-    });
+    })
 
     results.push({
       id: testCase.id,
@@ -333,35 +346,35 @@ ${JSON.stringify(item.content, null, 2)}
       judgeDetails: judgeResults
         .map(
           (result) =>
-            `${result.matched ? "✅" : "❌"} ${result.fact}: ${result.reason}`,
+            `${result.matched ? '✅' : '❌'} ${result.fact}: ${result.reason}`,
         )
-        .join("\n"),
+        .join('\n'),
       diagnosis,
-    });
+    })
   }
-  console.log("\nImprovement Candidates");
+  console.log('\nImprovement Candidates')
 
   for (const result of results) {
     if (result.diagnosis.issues.length === 0) {
-      continue;
+      continue
     }
 
-    console.log("");
-    console.log(`=== ${result.id} ===`);
-    console.log(result.query);
+    console.log('')
+    console.log(`=== ${result.id} ===`)
+    console.log(result.query)
 
-    console.log("");
-    console.log("Issues:");
+    console.log('')
+    console.log('Issues:')
 
     for (const issue of result.diagnosis.issues ?? []) {
-      console.log(`- ${issue}`);
+      console.log(`- ${issue}`)
     }
 
-    console.log("");
-    console.log("Suggestions:");
+    console.log('')
+    console.log('Suggestions:')
 
     for (const suggestion of result.diagnosis.suggestions ?? []) {
-      console.log(`- ${suggestion}`);
+      console.log(`- ${suggestion}`)
     }
   }
 
@@ -371,46 +384,46 @@ ${JSON.stringify(item.content, null, 2)}
 
   const averageStringFactRecall =
     results.reduce((sum, result) => sum + result.stringFactRecall, 0) /
-    results.length;
+    results.length
 
   const averageSemanticFactRecall =
     results.reduce((sum, result) => sum + result.semanticFactRecall, 0) /
-    results.length;
+    results.length
 
   const averageGroundedness =
     results.reduce((sum, result) => sum + result.groundednessScore, 0) /
-    results.length;
+    results.length
 
   const toolRecallValues = results
     .map((result) => result.toolRecall)
-    .filter((value): value is number => value !== null);
+    .filter((value): value is number => value !== null)
 
   const averageToolRecall =
     toolRecallValues.length > 0
       ? toolRecallValues.reduce((sum, value) => sum + value, 0) /
         toolRecallValues.length
-      : null;
+      : null
 
   // --------------------------------
   // Summary
   // --------------------------------
 
-  console.log("");
+  console.log('')
   console.log(
     `Average string fact recall: ${averageStringFactRecall.toFixed(2)}`,
-  );
+  )
 
   console.log(
     `Average semantic fact recall: ${averageSemanticFactRecall.toFixed(2)}`,
-  );
+  )
 
-  console.log(`Average groundedness: ${averageGroundedness.toFixed(2)}`);
+  console.log(`Average groundedness: ${averageGroundedness.toFixed(2)}`)
 
   if (averageToolRecall !== null) {
-    console.log(`Average tool recall: ${averageToolRecall.toFixed(2)}`);
+    console.log(`Average tool recall: ${averageToolRecall.toFixed(2)}`)
   }
 
-  console.log("");
+  console.log('')
 
   console.table(
     results.map((result) => ({
@@ -423,29 +436,29 @@ ${JSON.stringify(item.content, null, 2)}
       groundedness: result.groundednessScore.toFixed(2),
 
       toolRecall:
-        result.toolRecall === null ? "N/A" : result.toolRecall.toFixed(2),
+        result.toolRecall === null ? 'N/A' : result.toolRecall.toFixed(2),
 
       filterRecall:
         result.documentTypeFilterRecall === null
-          ? "N/A"
+          ? 'N/A'
           : result.documentTypeFilterRecall.toFixed(2),
 
       retrievedTypeRecall:
         result.retrievedDocumentTypeRecall === null
-          ? "N/A"
+          ? 'N/A'
           : result.retrievedDocumentTypeRecall.toFixed(2),
     })),
-  );
+  )
 
-  const evalResultsDir = path.join(process.cwd(), "data", "eval-results");
+  const evalResultsDir = path.join(process.cwd(), 'data', 'eval-results')
 
-  const resultName = process.argv[2] ?? "latest";
+  const resultName = process.argv[2] ?? 'latest'
 
   await fs.mkdir(evalResultsDir, {
     recursive: true,
-  });
+  })
 
-  const resultPath = path.join(evalResultsDir, `${resultName}.json`);
+  const resultPath = path.join(evalResultsDir, `${resultName}.json`)
   await fs.writeFile(
     resultPath,
     JSON.stringify(
@@ -462,10 +475,10 @@ ${JSON.stringify(item.content, null, 2)}
       null,
       2,
     ),
-    "utf-8",
-  );
+    'utf-8',
+  )
 
-  console.log(`Saved evaluation result: ${resultPath}`);
+  console.log(`Saved evaluation result: ${resultPath}`)
 
   // --------------------------------
   // Groundedness Issues
@@ -473,18 +486,18 @@ ${JSON.stringify(item.content, null, 2)}
 
   const groundednessFailures = results.filter(
     (result) => result.groundednessScore < 1,
-  );
+  )
 
   if (groundednessFailures.length > 0) {
-    console.log("\nGroundedness Issues");
+    console.log('\nGroundedness Issues')
 
     for (const result of groundednessFailures) {
-      console.log("");
-      console.log(result.id);
+      console.log('')
+      console.log(result.id)
 
-      console.log(`Score: ${result.groundednessScore}`);
+      console.log(`Score: ${result.groundednessScore}`)
 
-      console.log(`Reason: ${result.groundednessReason}`);
+      console.log(`Reason: ${result.groundednessReason}`)
     }
   }
 
@@ -499,41 +512,41 @@ ${JSON.stringify(item.content, null, 2)}
         result.documentTypeFilterRecall < 1) ||
       (result.retrievedDocumentTypeRecall !== null &&
         result.retrievedDocumentTypeRecall < 1),
-  );
+  )
 
   if (toolSelectionFailures.length > 0) {
-    console.log("\nTool Selection Issues");
+    console.log('\nTool Selection Issues')
 
     for (const result of toolSelectionFailures) {
-      console.log("");
-      console.log(result.id);
+      console.log('')
+      console.log(result.id)
 
       console.log(
         `Tool Recall: ${
-          result.toolRecall === null ? "N/A" : result.toolRecall.toFixed(2)
+          result.toolRecall === null ? 'N/A' : result.toolRecall.toFixed(2)
         }`,
-      );
+      )
 
       console.log(
         `Filter Recall: ${
           result.documentTypeFilterRecall === null
-            ? "N/A"
+            ? 'N/A'
             : result.documentTypeFilterRecall.toFixed(2)
         }`,
-      );
+      )
 
       console.log(
         `Retrieved Type Recall: ${
           result.retrievedDocumentTypeRecall === null
-            ? "N/A"
+            ? 'N/A'
             : result.retrievedDocumentTypeRecall.toFixed(2)
         }`,
-      );
+      )
     }
   }
 }
 
 main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+  console.error(error)
+  process.exit(1)
+})
