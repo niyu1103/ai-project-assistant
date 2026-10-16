@@ -1,0 +1,233 @@
+{
+  "generatedAt": "2026-10-16T07:49:28.246Z",
+  "averages": {
+    "stringFactRecall": 0.05,
+    "semanticFactRecall": 0.675,
+    "groundedness": 0.8,
+    "toolRecall": 0.5
+  },
+  "results": [
+    {
+      "id": "case-011",
+      "query": "青空テックのSSO証明書の有効期限が90日以内の場合、何をするべき？",
+      "stringMatched": "1/2",
+      "stringFactRecall": 0.5,
+      "semanticMatched": "2/2",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "回答の全主張はContextに明確な根拠があります。90日以内の更新予定確認・担当者への連絡・管理表への登録、30日以内の優先度引き上げと新証明書の発行状況および切替予定日の確認、検証環境での確認後の本番登録、新証明書でのログイン確認後に旧証明書を無効化する手順が、いずれも運用ガイドに記載されています。",
+      "toolRecall": 1,
+      "documentTypeFilterRecall": 1,
+      "retrievedDocumentTypeRecall": 1,
+      "answer": "有効期限が90日以内になった場合は、以下を実施します。\n\n- 更新予定を確認し、担当者へ連絡する\n- 社内管理表「SSO証明書更新予定」に登録する\n- 30日以内になったら優先度を上げ、新証明書の発行状況と切替予定日を確認する\n- 更新時は、検証環境で確認してから本番へ切り替える\n\n更新後は新証明書でのログインを確認し、問題がないことを確認してから旧証明書を無効化します。",
+      "judgeDetails": "✅ 証明書の更新予定を確認する: Actual Answerには「更新予定を確認する」と明記されており、Expected Factの内容を満たしています。\n✅ 担当者へ連絡する: Actual Answerに「更新予定を確認し、担当者へ連絡する」と明記されており、Expected Factの内容を満たしています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-012",
+      "query": "みらい物流でP1障害が発生した場合、一次報告はいつまでに何を報告する必要がある？",
+      "stringMatched": "0/4",
+      "stringFactRecall": 0,
+      "semanticMatched": "1/4",
+      "semanticFactRecall": 0.25,
+      "groundednessScore": 1,
+      "groundednessReason": "「P1障害は30分以内に一次報告」という主張は契約の特約に明記されています。また、提供された契約情報には一次報告の具体的な記載項目がないため、その旨の説明もContextに沿っています。",
+      "toolRecall": 0.5,
+      "documentTypeFilterRecall": 0,
+      "retrievedDocumentTypeRecall": 0,
+      "answer": "みらい物流でP1障害が発生した場合、**30分以内に一次報告**が必要です。一次報告に含める具体的な項目は、確認できた契約情報には記載されていません。",
+      "judgeDetails": "✅ P1障害発生時は30分以内に一次報告を行う: P1障害発生時に30分以内の一次報告が必要であると明確に述べており、Expected Factを満たしています。\n❌ 一次報告では影響範囲を共有する: Expected Factでは一次報告で影響範囲を共有するとされていますが、Actual Answerは報告期限のみを述べ、影響範囲を共有する点が欠けています。\n❌ 一次報告では暫定原因を共有する: Expected Factでは一次報告で暫定原因を共有する必要がありますが、Actual Answerは報告期限のみを述べ、暫定原因の共有について記載していません。\n❌ 一次報告では次回報告予定を共有する: Actual Answerには、一次報告で「次回報告予定を共有する」という必要情報が含まれておらず、報告期限についてのみ述べています。",
+      "diagnosis": {
+        "issues": [
+          "answer_incomplete",
+          "tool_selection",
+          "document_type_filter",
+          "retrieval_failure"
+        ],
+        "suggestions": [
+          "回答に必要な事実が不足しているため、質問の各論点を回答前に確認する。",
+          "必要なToolをすべて使用できるようAgent instructionsを見直す。",
+          "質問内容から適切なdocumentTypeを判断できるよう検索戦略を改善する。",
+          "必要な文書種別を取得できていないため、Filter・検索Query・再検索条件を見直す。"
+        ]
+      }
+    },
+    {
+      "id": "case-013",
+      "query": "北斗リテールのサポート対応時間を確認して",
+      "stringMatched": "0/1",
+      "stringFactRecall": 0,
+      "semanticMatched": "1/1",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "Actual Answerの「平日9:00〜18:00」は、契約情報のsupportLevelに明記されており、Contextに完全に裏付けられています。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "北斗リテールのサポート対応時間は、**平日 9:00〜18:00**です。",
+      "judgeDetails": "✅ サポート対応時間は平日9:00から18:00まで: Actual Answerは、サポート対応時間が平日9:00から18:00までであると明示しており、Expected Factと一致しています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-014",
+      "query": "AIがタスクを作成する場合、人間の承認は必要？また登録時の必須項目は？",
+      "stringMatched": "0/5",
+      "stringFactRecall": 0,
+      "semanticMatched": "5/5",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "主要な主張はすべてContextの「タスク管理ルール」に明記されています。AIはタスク案を作成可能だが、登録・更新・削除にはユーザー承認が必要であり、必須項目も「タスク名、担当者、期限、顧客またはプロジェクトID」と一致しています。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "AIはタスク案を作成できますが、実際の登録・更新・削除には人間の承認が必要です。\n\n登録時の必須項目は以下です。\n- タスク名\n- 担当者\n- 期限\n- 顧客またはプロジェクトID",
+      "judgeDetails": "✅ 実際のタスク登録・更新・削除にはユーザー承認が必要: 実際のタスク登録・更新・削除には承認が必要であると明示しており、Expected Factの意味を満たしています。「人間の承認」は文脈上ユーザー承認と同義です。\n✅ タスク名が必須: Actual Answerに「登録時の必須項目」として「タスク名」が明記されており、Expected Factを満たしています。\n✅ 担当者が必須: Actual Answerでは登録時の必須項目として「担当者」が明記されており、Expected Factの意味を満たしています。\n✅ 期限が必須: Actual Answerでは、登録時の必須項目として「期限」が明示されており、Expected Factを満たしています。\n✅ 顧客またはプロジェクトIDが必須: Actual Answerに「登録時の必須項目」として「顧客またはプロジェクトID」が明記されており、Expected Factを満たしています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-015",
+      "query": "社内AIを利用するとき、顧客の個人情報や認証情報は外部AIサービスへ送ってよい？",
+      "stringMatched": "0/2",
+      "stringFactRecall": 0,
+      "semanticMatched": "2/2",
+      "semanticFactRecall": 1,
+      "groundednessScore": 0.5,
+      "groundednessReason": "顧客の個人情報・認証情報を外部AIサービスへ送信してはならないこと、機密情報として扱うこと、利用目的と権限を確認することはContextに明記されています。一方、「社内の承認済み環境を利用する」というルールはContextに明示されていないため、一部に根拠のない追加情報があります。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "いいえ。顧客の個人情報や認証情報を外部AIサービスへ送信してはいけません。機密情報として扱い、利用目的・権限を確認したうえで、社内の承認済み環境を利用してください。",
+      "judgeDetails": "✅ 顧客の個人情報を外部AIサービスへ送信してはならない: 顧客の個人情報を外部AIサービスへ送信してはならないと明確に述べており、Expected Factを満たしています。\n✅ 認証情報を外部AIサービスへ送信してはならない: Actual Answerは、認証情報を外部AIサービスへ送信してはいけないと明確に述べており、Expected Factを満たしています。",
+      "diagnosis": {
+        "issues": [
+          "ungrounded_answer"
+        ],
+        "suggestions": [
+          "取得したContextにない情報を回答へ追加しない。必要なら追加検索する。"
+        ]
+      }
+    },
+    {
+      "id": "case-customer-mismatch-001",
+      "query": "青空機械株式会社のSSO証明書の有効期限が90日以内の場合、何をするべき？",
+      "stringMatched": "0/2",
+      "stringFactRecall": 0,
+      "semanticMatched": "1/2",
+      "semanticFactRecall": 0.5,
+      "groundednessScore": 0,
+      "groundednessReason": "Provided Contextが空であり、「青空機械株式会社」を顧客マスタで特定できなかったことや、SSO証明書情報を確認できなかったことを裏付ける情報が存在しません。",
+      "toolRecall": 0,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "「青空機械株式会社」を顧客マスタで特定できなかったため、顧客固有のSSO証明書情報は確認できませんでした。正式名称や別名をご確認ください。",
+      "judgeDetails": "✅ 顧客を特定できない: Actual Answerは「青空機械株式会社」を顧客マスタで特定できなかったと明示しており、Expected Factの「顧客を特定できない」を満たしています。\n❌ 顧客固有の対応手順を確認できない: Actual Answerは顧客固有のSSO証明書情報を確認できないと述べていますが、Expected Factの「顧客固有の対応手順を確認できない」とは対象が異なり、必要な情報を満たしていません。",
+      "diagnosis": {
+        "issues": [
+          "answer_incomplete",
+          "ungrounded_answer",
+          "tool_selection"
+        ],
+        "suggestions": [
+          "回答に必要な事実が不足しているため、質問の各論点を回答前に確認する。",
+          "取得したContextにない情報を回答へ追加しない。必要なら追加検索する。",
+          "必要なToolをすべて使用できるようAgent instructionsを見直す。"
+        ]
+      }
+    },
+    {
+      "id": "case-sso-over-90-days",
+      "query": "青空テックのSSO証明書の有効期限が90日以上の場合、何をする必要がありますか？",
+      "stringMatched": "0/1",
+      "stringFactRecall": 0,
+      "semanticMatched": "0/1",
+      "semanticFactRecall": 0,
+      "groundednessScore": 0.5,
+      "groundednessReason": "定期運用で期限を確認し、90日以内になった場合に担当者への連絡と更新予定への登録を行う点はContextに裏付けられています。ただし「90日以上」にはちょうど90日も含まれ、Contextでは90日は対応開始の対象です。その境界条件で回答に矛盾があります。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "有効期限が90日以上ある場合、通常の定期運用確認で期限を監視します。更新予定の登録や担当者への連絡は、期限が90日以内になってから行います。",
+      "judgeDetails": "❌ 90日を超える場合の必須対応は文書から確認できない: Expected Factは「90日を超える場合の必須対応は文書から確認できない」としているのに対し、Actual Answerは定期運用確認での監視や、90日以内になってからの登録・連絡という具体的な対応を断定しており、内容が一致しません。",
+      "diagnosis": {
+        "issues": [
+          "answer_incomplete",
+          "ungrounded_answer"
+        ],
+        "suggestions": [
+          "回答に必要な事実が不足しているため、質問の各論点を回答前に確認する。",
+          "取得したContextにない情報を回答へ追加しない。必要なら追加検索する。"
+        ]
+      }
+    },
+    {
+      "id": "case-sso-900-days",
+      "query": "青空テックのSSO証明書の有効期限が900日以内の場合、何をする必要がありますか？",
+      "stringMatched": "0/2",
+      "stringFactRecall": 0,
+      "semanticMatched": "2/2",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "回答の対応内容は、Context記載の「90日以内」の手順と「30日以内」の追加対応に明確に一致しています。また、文書上の基準が900日ではなく90日であるとの指摘も、提供された運用ガイドに基づいています。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "有効期限が**90日以内**になった場合は、以下を実施します。\n\n- 更新予定を確認し、担当者へ連絡する\n- 社内管理表「SSO証明書更新予定」に登録する\n- 30日以内なら優先度を上げ、新証明書の発行状況と切替予定日を確認する\n\nなお、「900日以内」は文書上の基準ではないため、90日の意味かご確認ください。",
+      "judgeDetails": "✅ 文書上の基準は90日以内である: Actual Answerは、文書上の基準が「90日以内」であり、「900日以内」ではないと明確に述べており、Expected Factを満たしています。\n✅ 900日以内という条件とは一致しない: Actual Answerは「900日以内」は文書上の基準ではないと明示しており、「900日以内という条件とは一致しない」というExpected Factの意味を満たしています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    },
+    {
+      "id": "case-certificate-ambiguous",
+      "query": "青空テックの証明書の有効期限が90日以内の場合、何をする必要がありますか？",
+      "stringMatched": "0/1",
+      "stringFactRecall": 0,
+      "semanticMatched": "0/1",
+      "semanticFactRecall": 0,
+      "groundednessScore": 1,
+      "groundednessReason": "主要な主張はすべてContextに明記されています。90日以内の更新予定確認・担当者への連絡・管理表への登録、30日以内の優先度引き上げと発行状況・切り替え予定日の確認、検証環境での確認後の本番登録、旧証明書へ切り戻せる状態の維持はいずれも運用ガイドに根拠があります。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "青空テックの証明書が有効期限90日以内になった場合は、以下を実施します。\n\n- 更新予定を確認し、担当者へ連絡する\n- 社内管理表「SSO証明書更新予定」に登録する\n- 30日以内になったら優先度を上げ、新証明書の発行状況と切り替え予定日を確認する\n\n更新時は、検証環境で確認してから本番登録し、旧証明書との切り戻し可能性を維持します。",
+      "judgeDetails": "❌ 証明書の種類を特定できない: Expected Factは「証明書の種類を特定できない」ことですが、Actual Answerは証明書更新時の対応手順のみを説明しており、証明書の種類を特定できないという情報を含んでいません。",
+      "diagnosis": {
+        "issues": [
+          "answer_incomplete"
+        ],
+        "suggestions": [
+          "回答に必要な事実が不足しているため、質問の各論点を回答前に確認する。"
+        ]
+      }
+    },
+    {
+      "id": "case-sso-tomorrow",
+      "query": "青空テックのSSO証明書の有効期限が明日の場合、何をする必要がありますか？",
+      "stringMatched": "0/2",
+      "stringFactRecall": 0,
+      "semanticMatched": "2/2",
+      "semanticFactRecall": 1,
+      "groundednessScore": 1,
+      "groundednessReason": "回答の主要な対応はすべてContextに明確な根拠があります。30日以内は優先度を上げること、担当者への連絡と管理表への登録、新証明書の取得、検証環境と本番環境でのログイン確認、問題確認後の旧証明書無効化、切り替え後のエラー監視と切り戻し可能な状態の維持、本番での直接変更を避けて変更内容・日時・担当者を記録することが、運用ガイドに記載されています。",
+      "toolRecall": null,
+      "documentTypeFilterRecall": null,
+      "retrievedDocumentTypeRecall": null,
+      "answer": "有効期限が明日なら、至急以下を実施してください。\n\n1. 現在の証明書情報と新証明書の発行状況・切り替え予定日を確認\n2. 青空テックの担当者へ連絡し、更新対象として管理表に登録\n3. 新証明書を取得し、検証環境でSSOログインを確認\n4. 本番環境へ登録してログイン確認\n5. 問題がなければ旧証明書を無効化\n6. 切り替え後のエラー増加を監視し、旧証明書へ戻せる状態を維持\n\n本番環境で直接変更せず、変更日時・担当者・内容を記録してください。",
+      "judgeDetails": "✅ 30日以内に該当する: 「有効期限が明日」と述べており、明日は30日以内に該当するため、Expected Factの意味を満たしています。\n✅ 優先度を上げる: 「有効期限が明日なら、至急以下を実施」と述べており、対応の優先度を上げる意味を満たしています。",
+      "diagnosis": {
+        "issues": [],
+        "suggestions": []
+      }
+    }
+  ]
+}

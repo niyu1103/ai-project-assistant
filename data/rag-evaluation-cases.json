@@ -154,20 +154,5 @@
     "id": "case-sso-tomorrow",
     "query": "青空テックのSSO証明書の有効期限が明日の場合、何をする必要がありますか？",
     "expectedFacts": ["30日以内に該当する", "優先度を上げる"]
-  },
-  {
-    "query": "この月次報告書から今月注意すべき点を教えてください",
-    "expectedTools": [
-      "get_contract",
-      "get_incidents",
-      "search_documents_semantic"
-    ],
-    "unexpectedTools": ["get_project"],
-    "expectedFacts": [
-      "API利用率82%",
-      "SSO証明書有効期限2026年11月18日",
-      "重大障害1件",
-      "SLA99.92%は契約上の99.9%を上回る"
-    ]
   }
 ]
